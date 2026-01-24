@@ -1,0 +1,87 @@
+1. PROJECT OVERVIEW
+________________________________________
+Project Title: Smart Construction Management System
+Tech Stack: MERN (MongoDB, Express, React, Node.js)
+The Smart Construction Management System is a web-based application designed to manage construction activities efficiently across multiple sites. It provides a centralized platform for admins, supervisors, workers, and accountants to monitor site progress, attendance, payments, and equipment usage in real time.
+________________________________________
+2. PROBLEM STATEMENT
+________________________________________
+Construction companies traditionally rely on manual methods such as paper registers and spreadsheets to manage sites, workers, and equipment. These methods lead to multiple issues such as inaccurate attendance records, delayed salary calculations, poor tracking of equipment usage, and lack of real-time visibility into site progress. Manual systems are error-prone, time-consuming, and inefficient, especially when managing multiple construction sites simultaneously.
+________________________________________
+3. PROPOSED SOLUTION
+________________________________________
+The proposed system is a web-based construction management platform that digitizes and automates daily construction operations. Supervisors can mark worker attendance and update site progress, workers can view tasks and salary details, and accountants can calculate payments and generate payslips. Admins get a complete overview of all sites, workers, equipment, and financial reports through a single dashboard.
+________________________________________
+4. USER ROLES & PERMISSIONS
+________________________________________
+A. Admin
+•	Can login to the system securely.
+•	Can add, edit, or delete construction sites.
+•	Can manage workers, supervisors, accountants, and equipment.
+•	Can view overall reports related to attendance, payments, and site progress.
+•	Has full system control.
+B. Supervisor
+•	Can login and access assigned construction sites.
+•	Can assign tasks to workers.
+•	Can mark and monitor daily worker attendance.
+•	Can update site progress.
+•	Can track equipment usage at the site.
+C. Worker
+•	Can login securely.
+•	Can mark daily attendance.
+•	Can view assigned tasks and update task status.
+•	Can view salary details and payment history.
+D. Accountant
+•	Can login to the accountant dashboard.
+•	Can calculate worker salaries based on attendance and overtime.
+•	Can approve and process payments.
+•	Can generate payslips.
+•	Can generate financial and payment reports.
+________________________________________
+5. DATABASE STRUCTURE (Schemas)
+________________________________________
+A. User Schema
+•	Name (String)
+•	Email (String, Unique)
+•	Password (Hashed)
+•	Role (String: 'admin', 'supervisor', 'worker', 'accountant')
+B. Site Schema
+•	SiteName (String)
+•	Location (String)
+•	SupervisorID (Reference to User)
+•	Status (String: 'Ongoing', 'Completed')
+•	CreatedAt (Timestamp)
+C. Attendance Schema
+•	WorkerID (Reference to User)
+•	SiteID (Reference to Site)
+•	Date (Date)
+•	Status (String: 'Present', 'Absent')
+•	Overtime (Number)
+D. Payment Schema
+•	WorkerID (Reference to User)
+•	TotalDays (Number)
+•	OvertimeHours (Number)
+•	SalaryAmount (Number)
+•	PaymentStatus (String: 'Pending', 'Paid')
+•	CreatedAt (Timestamp)
+________________________________________
+6. FEATURE WORKFLOW (The "User Journey")
+________________________________________
+1.	Login: Admin, Supervisor, Worker, or Accountant logs into the system.
+2.	Attendance: Supervisor marks attendance for workers at the site.
+3.	Database: Attendance data is stored in MongoDB.
+4.	Salary Calculation: Accountant accesses attendance data and calculates salaries.
+5.	Payment: Payment status is updated and payslips are generated.
+6.	Monitoring: Admin views real-time reports for sites, attendance, payments, and equipment.
+7.	Feedback: Workers can view their attendance records and salary details.
+________________________________________
+7. API ENDPOINTS (The URL Rules)
+________________________________________
+•	POST /api/auth/register → Register new user
+•	POST /api/auth/login → Login user
+•	GET /api/sites → Get all construction sites
+•	POST /api/sites → Create new site (Admin only)
+•	POST /api/attendance → Mark worker attendance
+•	GET /api/attendance/:siteId → View attendance by site
+•	POST /api/payments → Generate salary payments
+•	GET /api/reports → View system reports (Admin)
