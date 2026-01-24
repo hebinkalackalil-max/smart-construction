@@ -7,8 +7,14 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Unauthorized from './pages/Unauthorized';
 
+// Admin pages
+import AdminDashboard from './pages/admin/Dashboard';
+import Sites from './pages/admin/Sites';
+import Users from './pages/admin/Users';
+import Equipment from './pages/admin/Equipment';
+import Reports from './pages/admin/Reports';
+
 // Placeholder dashboard components (will be created in next phases)
-const AdminDashboard = () => <div style={{ padding: '2rem' }}><h1>Admin Dashboard</h1></div>;
 const SupervisorDashboard = () => <div style={{ padding: '2rem' }}><h1>Supervisor Dashboard</h1></div>;
 const WorkerDashboard = () => <div style={{ padding: '2rem' }}><h1>Worker Dashboard</h1></div>;
 const AccountantDashboard = () => <div style={{ padding: '2rem' }}><h1>Accountant Dashboard</h1></div>;
@@ -45,6 +51,46 @@ function App() {
             <ProtectedRoute allowedRoles={['admin']}>
               <Layout>
                 <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/sites"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Layout>
+                <Sites />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Layout>
+                <Users />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/equipment"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Layout>
+                <Equipment />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Layout>
+                <Reports />
               </Layout>
             </ProtectedRoute>
           }
