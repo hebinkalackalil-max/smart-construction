@@ -9,13 +9,19 @@ import Unauthorized from './pages/Unauthorized';
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard';
-import Sites from './pages/admin/Sites';
+import AdminSites from './pages/admin/Sites';
 import Users from './pages/admin/Users';
-import Equipment from './pages/admin/Equipment';
+import AdminEquipment from './pages/admin/Equipment';
 import Reports from './pages/admin/Reports';
 
+// Supervisor pages
+import SupervisorDashboard from './pages/supervisor/Dashboard';
+import SupervisorSites from './pages/supervisor/Sites';
+import Attendance from './pages/supervisor/Attendance';
+import Tasks from './pages/supervisor/Tasks';
+import SupervisorEquipment from './pages/supervisor/Equipment';
+
 // Placeholder dashboard components (will be created in next phases)
-const SupervisorDashboard = () => <div style={{ padding: '2rem' }}><h1>Supervisor Dashboard</h1></div>;
 const WorkerDashboard = () => <div style={{ padding: '2rem' }}><h1>Worker Dashboard</h1></div>;
 const AccountantDashboard = () => <div style={{ padding: '2rem' }}><h1>Accountant Dashboard</h1></div>;
 
@@ -60,7 +66,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <Layout>
-                <Sites />
+                <AdminSites />
               </Layout>
             </ProtectedRoute>
           }
@@ -80,7 +86,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <Layout>
-                <Equipment />
+                <AdminEquipment />
               </Layout>
             </ProtectedRoute>
           }
@@ -103,6 +109,46 @@ function App() {
             <ProtectedRoute allowedRoles={['supervisor']}>
               <Layout>
                 <SupervisorDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supervisor/sites"
+          element={
+            <ProtectedRoute allowedRoles={['supervisor']}>
+              <Layout>
+                <SupervisorSites />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supervisor/attendance"
+          element={
+            <ProtectedRoute allowedRoles={['supervisor']}>
+              <Layout>
+                <Attendance />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supervisor/tasks"
+          element={
+            <ProtectedRoute allowedRoles={['supervisor']}>
+              <Layout>
+                <Tasks />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supervisor/equipment"
+          element={
+            <ProtectedRoute allowedRoles={['supervisor']}>
+              <Layout>
+                <SupervisorEquipment />
               </Layout>
             </ProtectedRoute>
           }
