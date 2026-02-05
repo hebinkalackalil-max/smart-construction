@@ -4,6 +4,8 @@ import api from '../../utils/api';
 const Sites = () => {
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // all, Ongoing, Completed
 
   useEffect(() => {
     fetchSites();
@@ -21,15 +23,57 @@ const Sites = () => {
     }
   };
 
+  const filteredSites = sites.filter((site) => {
+    const matchesSearch =
+      site.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.location.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' ? true : site.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
   }
 
   return (
     <div>
-      <h1 style={{ marginBottom: '2rem', color: '#2c3e50' }}>My Assigned Sites</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+        <h1 style={{ margin: 0, color: '#2c3e50' }}>My Assigned Sites</h1>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by name or location"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem',
+              minWidth: '220px'
+            }}
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          >
+            <option value="all">All Statuses</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+      </div>
 
-      {sites.length === 0 ? (
+      {filteredSites.length === 0 ? (
         <div style={{
           backgroundColor: 'white',
           padding: '3rem',
@@ -41,7 +85,7 @@ const Sites = () => {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
-          {sites.map((site) => (
+          {filteredSites.map((site) => (
             <div
               key={site._id}
               style={{

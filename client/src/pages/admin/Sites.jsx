@@ -6,6 +6,8 @@ const Sites = () => {
   const [sites, setSites] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // all, Ongoing, Completed
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSite, setEditingSite] = useState(null);
   const [formData, setFormData] = useState({
@@ -97,10 +99,6 @@ const Sites = () => {
     }
   };
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
-  }
-
   const inputStyle = {
     width: '100%',
     padding: '0.75rem',
@@ -111,24 +109,69 @@ const Sites = () => {
     marginBottom: '1rem'
   };
 
+  const filteredSites = sites.filter((site) => {
+    const matchesSearch =
+      site.siteName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.location.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === 'all' ? true : site.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0, color: '#2c3e50' }}>Site Management</h1>
-        <button
-          onClick={() => handleOpenModal()}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#3498db',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
-          + Add Site
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by name or location"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem',
+              minWidth: '220px'
+            }}
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          >
+            <option value="all">All Statuses</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button
+            onClick={() => handleOpenModal()}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            + Add Site
+          </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -143,14 +186,14 @@ const Sites = () => {
             </tr>
           </thead>
           <tbody>
-            {sites.length === 0 ? (
+            {filteredSites.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
                   No sites found
                 </td>
               </tr>
             ) : (
-              sites.map((site) => (
+              filteredSites.map((site) => (
                 <tr key={site._id} style={{ borderBottom: '1px solid #dee2e6' }}>
                   <td style={{ padding: '1rem' }}>{site.siteName}</td>
                   <td style={{ padding: '1rem' }}>{site.location}</td>

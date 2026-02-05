@@ -79,6 +79,9 @@ const Sidebar = ({ user }) => {
       <Link to="/accountant/dashboard" style={linkStyle('/accountant/dashboard')}>
         Dashboard
       </Link>
+      <Link to="/accountant/calculate" style={linkStyle('/accountant/calculate')}>
+        Calculate Salary
+      </Link>
       <Link to="/accountant/payments" style={linkStyle('/accountant/payments')}>
         Payments
       </Link>

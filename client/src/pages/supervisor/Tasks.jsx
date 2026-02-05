@@ -7,6 +7,9 @@ const Tasks = () => {
   const [sites, setSites] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all'); // all, Pending, In Progress, Completed
+  const [siteFilter, setSiteFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     workerID: '',
@@ -92,10 +95,6 @@ const Tasks = () => {
     }
   };
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
-  }
-
   const inputStyle = {
     width: '100%',
     padding: '0.75rem',
@@ -115,24 +114,89 @@ const Tasks = () => {
     return colors[status] || '#95a5a6';
   };
 
+  const filteredTasks = tasks.filter((task) => {
+    const matchesStatus =
+      statusFilter === 'all' ? true : task.status === statusFilter;
+
+    const matchesSite =
+      siteFilter === 'all' ? true : task.siteID?._id === siteFilter || task.siteID === siteFilter;
+
+    const matchesSearch =
+      task.taskDescription.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesStatus && matchesSite && matchesSearch;
+  });
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0, color: '#2c3e50' }}>Task Management</h1>
-        <button
-          onClick={handleOpenModal}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#3498db',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
-          + Assign Task
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by task description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem',
+              minWidth: '220px'
+            }}
+          />
+          <select
+            value={siteFilter}
+            onChange={(e) => setSiteFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          >
+            <option value="all">All Sites</option>
+            {sites.map((site) => (
+              <option key={site._id} value={site._id}>
+                {site.siteName}
+              </option>
+            ))}
+          </select>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          >
+            <option value="all">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button
+            onClick={handleOpenModal}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            + Assign Task
+          </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -147,14 +211,14 @@ const Tasks = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.length === 0 ? (
+            {filteredTasks.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
                   No tasks found
                 </td>
               </tr>
             ) : (
-              tasks.map((task) => (
+              filteredTasks.map((task) => (
                 <tr key={task._id} style={{ borderBottom: '1px solid #dee2e6' }}>
                   <td style={{ padding: '1rem', maxWidth: '300px' }}>
                     <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{task.taskDescription}</div>

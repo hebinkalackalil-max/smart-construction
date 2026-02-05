@@ -5,6 +5,8 @@ import Modal from '../../components/Modal';
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all'); // all, admin, supervisor, worker, accountant
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -89,10 +91,6 @@ const Users = () => {
     }
   };
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
-  }
-
   const inputStyle = {
     width: '100%',
     padding: '0.75rem',
@@ -113,24 +111,71 @@ const Users = () => {
     return colors[role] || '#95a5a6';
   };
 
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole =
+      roleFilter === 'all' ? true : user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
+  });
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0, color: '#2c3e50' }}>User Management</h1>
-        <button
-          onClick={() => handleOpenModal()}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#3498db',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
-          + Add User
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search by name or email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem',
+              minWidth: '220px'
+            }}
+          />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontSize: '0.9rem'
+            }}
+          >
+            <option value="all">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="worker">Worker</option>
+            <option value="accountant">Accountant</option>
+          </select>
+          <button
+            onClick={() => handleOpenModal()}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            + Add User
+          </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -144,14 +189,14 @@ const Users = () => {
             </tr>
           </thead>
           <tbody>
-            {users.length === 0 ? (
+            {filteredUsers.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
                   No users found
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
+              filteredUsers.map((user) => (
                 <tr key={user.id} style={{ borderBottom: '1px solid #dee2e6' }}>
                   <td style={{ padding: '1rem' }}>{user.name}</td>
                   <td style={{ padding: '1rem' }}>{user.email}</td>

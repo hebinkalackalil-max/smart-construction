@@ -12,22 +12,32 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminSites from './pages/admin/Sites';
 import Users from './pages/admin/Users';
 import AdminEquipment from './pages/admin/Equipment';
-import Reports from './pages/admin/Reports';
+import AdminReports from './pages/admin/Reports';
 
 // Supervisor pages
 import SupervisorDashboard from './pages/supervisor/Dashboard';
 import SupervisorSites from './pages/supervisor/Sites';
-import Attendance from './pages/supervisor/Attendance';
-import Tasks from './pages/supervisor/Tasks';
+import SupervisorAttendance from './pages/supervisor/Attendance';
+import SupervisorTasks from './pages/supervisor/Tasks';
 import SupervisorEquipment from './pages/supervisor/Equipment';
 
-// Placeholder dashboard components (will be created in next phases)
-const WorkerDashboard = () => <div style={{ padding: '2rem' }}><h1>Worker Dashboard</h1></div>;
-const AccountantDashboard = () => <div style={{ padding: '2rem' }}><h1>Accountant Dashboard</h1></div>;
+// Worker pages
+import WorkerDashboard from './pages/worker/Dashboard';
+import WorkerAttendance from './pages/worker/Attendance';
+import WorkerTasks from './pages/worker/Tasks';
+import WorkerPayments from './pages/worker/Payments';
+import WorkerPayslip from './pages/worker/Payslip';
+
+// Accountant pages
+import AccountantDashboard from './pages/accountant/Dashboard';
+import Calculate from './pages/accountant/Calculate';
+import AccountantPayments from './pages/accountant/Payments';
+import AccountantReports from './pages/accountant/Reports';
+import Payslip from './pages/accountant/Payslip';
 
 const Layout = ({ children }) => {
   const { user } = useAuth();
-  
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
@@ -96,7 +106,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <Layout>
-                <Reports />
+                <AdminReports />
               </Layout>
             </ProtectedRoute>
           }
@@ -128,7 +138,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['supervisor']}>
               <Layout>
-                <Attendance />
+                <SupervisorAttendance />
               </Layout>
             </ProtectedRoute>
           }
@@ -138,7 +148,7 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['supervisor']}>
               <Layout>
-                <Tasks />
+                <SupervisorTasks />
               </Layout>
             </ProtectedRoute>
           }
@@ -165,6 +175,46 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/worker/attendance"
+          element={
+            <ProtectedRoute allowedRoles={['worker']}>
+              <Layout>
+                <WorkerAttendance />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/worker/tasks"
+          element={
+            <ProtectedRoute allowedRoles={['worker']}>
+              <Layout>
+                <WorkerTasks />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/worker/payments"
+          element={
+            <ProtectedRoute allowedRoles={['worker']}>
+              <Layout>
+                <WorkerPayments />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/worker/payslip/:id"
+          element={
+            <ProtectedRoute allowedRoles={['worker']}>
+              <Layout>
+                <WorkerPayslip />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected routes - Accountant */}
         <Route
@@ -173,6 +223,46 @@ function App() {
             <ProtectedRoute allowedRoles={['accountant']}>
               <Layout>
                 <AccountantDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountant/calculate"
+          element={
+            <ProtectedRoute allowedRoles={['accountant']}>
+              <Layout>
+                <Calculate />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountant/payments"
+          element={
+            <ProtectedRoute allowedRoles={['accountant']}>
+              <Layout>
+                <AccountantPayments />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountant/reports"
+          element={
+            <ProtectedRoute allowedRoles={['accountant']}>
+              <Layout>
+                <AccountantReports />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountant/payslip/:id"
+          element={
+            <ProtectedRoute allowedRoles={['accountant']}>
+              <Layout>
+                <Payslip />
               </Layout>
             </ProtectedRoute>
           }
