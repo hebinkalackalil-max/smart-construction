@@ -17,6 +17,7 @@ import AdminReports from './pages/admin/Reports';
 // Supervisor pages
 import SupervisorDashboard from './pages/supervisor/Dashboard';
 import SupervisorSites from './pages/supervisor/Sites';
+import SupervisorSiteWorkers from './pages/supervisor/SiteWorkers';
 import SupervisorAttendance from './pages/supervisor/Attendance';
 import SupervisorTasks from './pages/supervisor/Tasks';
 import SupervisorEquipment from './pages/supervisor/Equipment';
@@ -30,6 +31,7 @@ import WorkerPayslip from './pages/worker/Payslip';
 
 // Accountant pages
 import AccountantDashboard from './pages/accountant/Dashboard';
+import AccountantAttendanceRecords from './pages/accountant/AttendanceRecords';
 import Calculate from './pages/accountant/Calculate';
 import AccountantPayments from './pages/accountant/Payments';
 import AccountantReports from './pages/accountant/Reports';
@@ -43,7 +45,7 @@ const Layout = ({ children }) => {
       <Navbar />
       <div style={{ display: 'flex', flex: 1 }}>
         {user && <Sidebar user={user} />}
-        <main style={{ flex: 1, padding: '2rem', backgroundColor: '#f8f9fa' }}>
+        <main style={{ flex: 1, padding: '2rem', backgroundColor: 'var(--bg-color)', transition: 'background-color 0.3s' }}>
           {children}
         </main>
       </div>
@@ -129,6 +131,16 @@ function App() {
             <ProtectedRoute allowedRoles={['supervisor']}>
               <Layout>
                 <SupervisorSites />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supervisor/site-workers"
+          element={
+            <ProtectedRoute allowedRoles={['supervisor']}>
+              <Layout>
+                <SupervisorSiteWorkers />
               </Layout>
             </ProtectedRoute>
           }
@@ -223,6 +235,16 @@ function App() {
             <ProtectedRoute allowedRoles={['accountant']}>
               <Layout>
                 <AccountantDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accountant/attendance"
+          element={
+            <ProtectedRoute allowedRoles={['accountant']}>
+              <Layout>
+                <AccountantAttendanceRecords />
               </Layout>
             </ProtectedRoute>
           }

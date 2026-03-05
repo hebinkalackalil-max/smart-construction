@@ -7,14 +7,15 @@ const Sites = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); // all, Ongoing, Completed
+  const [statusFilter, setStatusFilter] = useState('all'); // all, Ongoing, Temporarily Paused, Completed
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSite, setEditingSite] = useState(null);
   const [formData, setFormData] = useState({
     siteName: '',
     location: '',
     supervisorID: '',
-    status: 'Ongoing'
+    status: 'Ongoing',
+    isActive: true
   });
 
   useEffect(() => {
@@ -47,11 +48,13 @@ const Sites = () => {
   const handleOpenModal = (site = null) => {
     if (site) {
       setEditingSite(site);
+      const isActive = site.isActive !== false;
       setFormData({
         siteName: site.siteName,
         location: site.location,
         supervisorID: site.supervisorID._id || site.supervisorID,
-        status: site.status
+        status: isActive ? site.status : 'Temporarily Paused',
+        isActive
       });
     } else {
       setEditingSite(null);
@@ -59,7 +62,8 @@ const Sites = () => {
         siteName: '',
         location: '',
         supervisorID: '',
-        status: 'Ongoing'
+        status: 'Ongoing',
+        isActive: true
       });
     }
     setIsModalOpen(true);
@@ -77,13 +81,26 @@ const Sites = () => {
         await api.put(`/sites/${editingSite._id}`, formData);
         alert('Site updated successfully');
       } else {
-        await api.post('/sites', formData);
+        const { isActive, ...createData } = formData;
+        await api.post('/sites', createData);
         alert('Site created successfully');
       }
       fetchSites();
       handleCloseModal();
     } catch (error) {
       alert(error.response?.data?.message || 'Error saving site');
+    }
+  };
+
+  const handleToggleActive = async (site) => {
+    const newActive = !(site.isActive !== false);
+    if (!window.confirm(newActive ? 'Activate this site?' : 'Deactivate this site? It will be set to Temporarily Paused and hidden from others.')) return;
+    try {
+      await api.put(`/sites/${site._id}`, { isActive: newActive });
+      alert(newActive ? 'Site activated. You can now change its status.' : 'Site deactivated and set to Temporarily Paused.');
+      fetchSites();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Error updating site');
     }
   };
 
@@ -99,15 +116,6 @@ const Sites = () => {
     }
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    boxSizing: 'border-box',
-    marginBottom: '1rem'
-  };
 
   const filteredSites = sites.filter((site) => {
     const matchesSearch =
@@ -121,122 +129,92 @@ const Sites = () => {
   });
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p className="mt-3">Loading sites...</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0, color: '#2c3e50' }}>Site Management</h1>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div className="app-container">
+      <div className="page-actions">
+        <h1 className="page-title">Site Management</h1>
+        <div className="page-filters">
           <input
             type="text"
             placeholder="Search by name or location"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '0.9rem',
-              minWidth: '220px'
-            }}
+            className="filter-input"
           />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '0.9rem'
-            }}
+            className="filter-select"
           >
             <option value="all">All Statuses</option>
             <option value="Ongoing">Ongoing</option>
+            <option value="Temporarily Paused">Temporarily Paused</option>
             <option value="Completed">Completed</option>
           </select>
-          <button
-            onClick={() => handleOpenModal()}
-            style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              whiteSpace: 'nowrap'
-            }}
-          >
+          <button onClick={() => handleOpenModal()} className="btn btn-primary">
             + Add Site
           </button>
         </div>
       </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="data-table-container">
+        <table className="data-table">
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Site Name</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Location</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Supervisor</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Actions</th>
+            <tr>
+              <th>Site Name</th>
+              <th>Location</th>
+              <th>Supervisor</th>
+              <th>Status</th>
+              <th>Active</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredSites.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-                  No sites found
-                </td>
+              <tr className="empty-row">
+                <td colSpan="6">No sites found</td>
               </tr>
             ) : (
               filteredSites.map((site) => (
-                <tr key={site._id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                  <td style={{ padding: '1rem' }}>{site.siteName}</td>
-                  <td style={{ padding: '1rem' }}>{site.location}</td>
-                  <td style={{ padding: '1rem' }}>
-                    {site.supervisorID?.name || 'N/A'}
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '12px',
-                      fontSize: '0.85rem',
-                      backgroundColor: site.status === 'Ongoing' ? '#d4edda' : '#f8d7da',
-                      color: site.status === 'Ongoing' ? '#155724' : '#721c24'
-                    }}>
+                <tr key={site._id}>
+                  <td className="fw-semibold">{site.siteName}</td>
+                  <td>{site.location}</td>
+                  <td>{site.supervisorID?.name || 'N/A'}</td>
+                  <td>
+                    <span className={`status-badge ${
+                      site.status === 'Ongoing' ? 'status-ongoing' :
+                      site.status === 'Temporarily Paused' ? 'bg-warning text-dark' : 'status-completed'
+                    }`}>
                       {site.status}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem' }}>
-                    <button
-                      onClick={() => handleOpenModal(site)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#f39c12',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginRight: '0.5rem'
-                      }}
-                    >
+                  <td>
+                    {site.isActive !== false ? (
+                      <span className="badge bg-success">Active</span>
+                    ) : (
+                      <span className="badge bg-secondary">Deactivated</span>
+                    )}
+                  </td>
+                  <td>
+                    <button onClick={() => handleOpenModal(site)} className="action-btn action-btn-edit">
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(site._id)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#e74c3c',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
+                      onClick={() => handleToggleActive(site)}
+                      className={`action-btn ${site.isActive !== false ? 'action-btn-delete' : 'btn btn-success btn-sm'}`}
+                      title={site.isActive !== false ? 'Deactivate site' : 'Activate site'}
                     >
+                      {site.isActive !== false ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button onClick={() => handleDelete(site._id)} className="action-btn action-btn-delete">
                       Delete
                     </button>
                   </td>
@@ -253,83 +231,85 @@ const Sites = () => {
         title={editingSite ? 'Edit Site' : 'Add New Site'}
       >
         <form onSubmit={handleSubmit}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Site Name</label>
+          <div className="form-group">
+            <label className="form-label">Site Name</label>
             <input
               type="text"
+              className="form-control"
               value={formData.siteName}
               onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
               required
-              style={inputStyle}
             />
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Location</label>
+          <div className="form-group">
+            <label className="form-label">Location</label>
             <input
               type="text"
+              className="form-control"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               required
-              style={inputStyle}
             />
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Supervisor</label>
+          <div className="form-group">
+            <label className="form-label">Supervisor</label>
             <select
+              className="form-select"
               value={formData.supervisorID}
               onChange={(e) => setFormData({ ...formData, supervisorID: e.target.value })}
               required
-              style={inputStyle}
             >
               <option value="">Select Supervisor</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} ({user.email})
-                </option>
-              ))}
+              {users.map((user) => {
+                const uid = user._id || user.id;
+                return (
+                  <option key={uid} value={uid}>
+                    {user.name} ({user.email})
+                  </option>
+                );
+              })}
             </select>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Status</label>
+          {editingSite && (
+            <div className="form-group form-check">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="siteIsActive"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              />
+              <label className="form-check-label" htmlFor="siteIsActive">Site is active</label>
+              <small className="d-block text-muted mt-1">Deactivated sites are set to Temporarily Paused. Activate the site to change status.</small>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label className="form-label">Status</label>
             <select
+              className="form-select"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              style={inputStyle}
+              disabled={editingSite && !formData.isActive}
+              title={editingSite && !formData.isActive ? 'Activate the site to change status' : ''}
             >
               <option value="Ongoing">Ongoing</option>
+              <option value="Temporarily Paused">Temporarily Paused</option>
               <option value="Completed">Completed</option>
             </select>
+            {editingSite && !formData.isActive && (
+              <small className="text-muted">Activate the site above to change status.</small>
+            )}
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              onClick={handleCloseModal}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#95a5a6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
+          <div className="modal-footer" style={{ padding: 0, border: 'none', marginTop: '1.5rem' }}>
+            <button type="button" onClick={handleCloseModal} className="btn btn-outline-secondary">
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#3498db',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
+            <button type="submit" className="btn btn-primary">
               {editingSite ? 'Update' : 'Create'}
             </button>
           </div>

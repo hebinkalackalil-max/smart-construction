@@ -1,0 +1,125 @@
+================================================================================
+  SMART CONSTRUCTION MANAGEMENT SYSTEM - DATABASE SCHEMA
+  (MongoDB / Mongoose collections documented as tables)
+================================================================================
+
+Note: All tables use timestamps (createdAt, updatedAt) unless stated otherwise.
+      References (ObjectId) link to the referenced collection's _id.
+
+
+--------------------------------------------------------------------------------
+TABLE 1: User
+--------------------------------------------------------------------------------
+Collection/Table name: users
+
+| Field Name | Data Type    | Constraints                    | Required | Description                                    |
+|------------|--------------|--------------------------------|----------|------------------------------------------------|
+| _id        | ObjectId     | Primary key, auto-generated    | Yes      | Unique identifier for the user                 |
+| name       | String       | trim                           | Yes      | Full name of the user                          |
+| email      | String       | unique, trim, lowercase        | Yes      | Email address; used for login; must be unique |
+| password   | String       | (stored hashed in application) | Yes      | Hashed password for authentication             |
+| role       | String       | enum: admin, supervisor, worker, accountant, user; default: user | No  | User's role in the system               |
+| createdAt  | Date         | auto-set on create             | -        | When the user record was created               |
+| updatedAt  | Date         | auto-set on create/update      | -        | When the user record was last updated          |
+
+
+--------------------------------------------------------------------------------
+TABLE 2: Site
+--------------------------------------------------------------------------------
+Collection/Table name: sites
+
+| Field Name   | Data Type     | Constraints                                              | Required | Description                                           |
+|--------------|---------------|----------------------------------------------------------|----------|-------------------------------------------------------|
+| _id          | ObjectId      | Primary key, auto-generated                              | Yes      | Unique identifier for the site                        |
+| siteName     | String        | trim                                                     | Yes      | Name of the construction site                        |
+| location     | String        | trim                                                     | Yes      | Physical location/address of the site                 |
+| supervisorID | ObjectId      | ref: User                                                | Yes      | Reference to the user (supervisor) assigned to site   |
+| status       | String        | enum: Ongoing, Temporarily Paused, Completed; default: Ongoing | No | Current status of the site                    |
+| isActive     | Boolean       | default: true                                            | No       | Whether site is active; false = deactivated (admin only) |
+| workerIDs    | Array[ObjectId]| ref: User; default: []                                  | No       | List of user IDs (workers) assigned to this site      |
+| createdAt    | Date          | auto-set on create                                       | -        | When the site record was created                      |
+| updatedAt    | Date          | auto-set on create/update                                | -        | When the site record was last updated                 |
+
+
+--------------------------------------------------------------------------------
+TABLE 3: Attendance
+--------------------------------------------------------------------------------
+Collection/Table name: attendances
+
+| Field Name | Data Type | Constraints                                           | Required | Description                                      |
+|------------|-----------|-------------------------------------------------------|----------|--------------------------------------------------|
+| _id        | ObjectId  | Primary key, auto-generated                           | Yes      | Unique identifier for the attendance record       |
+| workerID   | ObjectId  | ref: User                                             | Yes      | Reference to the worker whose attendance is recorded |
+| siteID     | ObjectId  | ref: Site                                             | Yes      | Reference to the site where attendance was marked |
+| date       | Date      | default: Date.now                                     | Yes      | Date of attendance (normalized to day for dedup) |
+| status     | String    | enum: Present, Absent                                 | Yes      | Attendance status for that day                    |
+| overtime   | Number    | default: 0, min: 0                                    | No       | Overtime hours worked that day                    |
+| createdAt  | Date      | auto-set on create                                    | -        | When the record was created                      |
+| updatedAt  | Date      | auto-set on create/update                             | -        | When the record was last updated                  |
+
+Index: Unique compound index on (workerID, siteID, date) to prevent duplicate attendance per worker/site/date.
+
+
+--------------------------------------------------------------------------------
+TABLE 4: Payment
+--------------------------------------------------------------------------------
+Collection/Table name: payments
+
+| Field Name    | Data Type | Constraints                                | Required | Description                              |
+|---------------|-----------|--------------------------------------------|----------|------------------------------------------|
+| _id           | ObjectId  | Primary key, auto-generated                | Yes      | Unique identifier for the payment        |
+| workerID      | ObjectId  | ref: User                                  | Yes      | Reference to the worker being paid      |
+| totalDays     | Number    | min: 0                                     | Yes      | Number of days (e.g. Present) in period |
+| overtimeHours | Number    | default: 0, min: 0                         | No       | Total overtime hours in the period       |
+| salaryAmount  | Number    | min: 0                                     | Yes      | Calculated salary amount for the period |
+| paymentStatus | String    | enum: Pending, Paid; default: Pending      | No       | Whether payment has been approved/paid |
+| createdAt     | Date      | auto-set on create                         | -        | When the payment was created            |
+| updatedAt     | Date      | auto-set on create/update                  | -        | When the payment was last updated       |
+
+
+--------------------------------------------------------------------------------
+TABLE 5: Task
+--------------------------------------------------------------------------------
+Collection/Table name: tasks
+
+| Field Name      | Data Type | Constraints                                           | Required | Description                              |
+|-----------------|-----------|-------------------------------------------------------|----------|------------------------------------------|
+| _id             | ObjectId  | Primary key, auto-generated                           | Yes      | Unique identifier for the task           |
+| workerID        | ObjectId  | ref: User                                             | Yes      | Reference to the worker assigned to task |
+| siteID          | ObjectId  | ref: Site                                             | Yes      | Reference to the site for the task       |
+| taskDescription | String    | trim                                                  | Yes      | Description of the task                  |
+| status          | String    | enum: Pending, In Progress, Completed; default: Pending| No       | Current status of the task               |
+| assignedBy      | ObjectId  | ref: User                                             | Yes      | Reference to user (e.g. supervisor) who assigned the task |
+| createdAt       | Date      | auto-set on create                                    | -        | When the task was created                |
+| updatedAt       | Date      | auto-set on create/update                             | -        | When the task was last updated           |
+
+
+--------------------------------------------------------------------------------
+TABLE 6: Equipment
+--------------------------------------------------------------------------------
+Collection/Table name: equipment
+
+| Field Name     | Data Type | Constraints                                          | Required | Description                           |
+|----------------|-----------|------------------------------------------------------|----------|---------------------------------------|
+| _id            | ObjectId  | Primary key, auto-generated                          | Yes      | Unique identifier for the equipment   |
+| equipmentName  | String    | trim                                                 | Yes      | Name/identifier of the equipment      |
+| siteID         | ObjectId  | ref: Site                                            | Yes      | Reference to the site where equipment is located |
+| status         | String    | enum: Available, In Use, Maintenance; default: Available | No   | Current status of the equipment       |
+| lastMaintenance| Date      | -                                                    | No       | Date of last maintenance (optional)   |
+| createdAt      | Date      | auto-set on create                                   | -        | When the record was created           |
+| updatedAt      | Date      | auto-set on create/update                            | -        | When the record was last updated      |
+
+
+--------------------------------------------------------------------------------
+ENTITY RELATIONSHIPS (SUMMARY)
+--------------------------------------------------------------------------------
+• User: Referenced by Site (supervisorID, workerIDs), Attendance (workerID),
+  Payment (workerID), Task (workerID, assignedBy), and Equipment (via Site).
+• Site: Referenced by Attendance (siteID), Task (siteID), Equipment (siteID);
+  references User (supervisorID, workerIDs).
+• Attendance: References User (workerID), Site (siteID).
+• Payment: References User (workerID).
+• Task: References User (workerID, assignedBy), Site (siteID).
+• Equipment: References Site (siteID).
+
+================================================================================

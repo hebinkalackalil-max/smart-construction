@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/dateFormat';
 
 const Attendance = () => {
   const [sites, setSites] = useState([]);
@@ -33,12 +34,16 @@ const Attendance = () => {
   };
 
   const fetchWorkersForSite = async () => {
+    if (!selectedSite) {
+      setWorkers([]);
+      return;
+    }
     try {
-      const response = await api.get('/users');
-      const allWorkers = response.data.data.filter(u => u.role === 'worker');
-      setWorkers(allWorkers);
+      const response = await api.get(`/sites/${selectedSite}/workers`);
+      setWorkers(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching workers:', error);
+      console.error('Error fetching workers for site:', error);
+      setWorkers([]);
     }
   };
 
@@ -98,23 +103,15 @@ const Attendance = () => {
   };
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '2rem', color: '#2c3e50' }}>Mark Attendance</h1>
+    <div className="app-container">
+      <h1 className="mb-4" style={{ color: 'var(--primary)' }}>Mark Attendance</h1>
 
-      {/* Mark Attendance Form */}
-      <div style={cardStyle}>
-        <h2 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#2c3e50' }}>Mark Worker Attendance</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555', fontWeight: '500' }}>
-              Select Site *
-            </label>
-            <select
-              value={selectedSite}
-              onChange={(e) => setSelectedSite(e.target.value)}
-              required
-              style={inputStyle}
-            >
+      <div className="card p-3 mb-4">
+        <h5 style={{ color: 'var(--primary)' }}>Mark Worker Attendance</h5>
+        <form onSubmit={handleSubmit} className="row g-3 mt-2">
+          <div className="col-12 col-md-6">
+            <label className="form-label">Select Site *</label>
+            <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} required className="form-select">
               <option value="">Select Site</option>
               {sites.map((site) => (
                 <option key={site._id} value={site._id}>
@@ -124,132 +121,78 @@ const Attendance = () => {
             </select>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555', fontWeight: '500' }}>
-              Select Worker *
-            </label>
-            <select
-              value={selectedWorker}
-              onChange={(e) => setSelectedWorker(e.target.value)}
-              required
-              disabled={!selectedSite}
-              style={inputStyle}
-            >
+          <div className="col-12 col-md-6">
+            <label className="form-label">Select Worker *</label>
+            <select value={selectedWorker} onChange={(e) => setSelectedWorker(e.target.value)} required disabled={!selectedSite} className="form-select">
               <option value="">Select Worker</option>
-              {workers.map((worker) => (
-                <option key={worker.id} value={worker.id}>
-                  {worker.name} ({worker.email})
-                </option>
-              ))}
+              {workers.length === 0 && selectedSite ? (
+                <option value="" disabled>No workers assigned to this site. Add them in Site Workers.</option>
+              ) : (
+                workers.map((worker) => (
+                  <option key={worker._id} value={worker._id}>
+                    {worker.name} ({worker.email})
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555', fontWeight: '500' }}>
-              Date *
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              style={inputStyle}
-            />
+          <div className="col-12 col-md-4">
+            <label className="form-label">Date *</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="form-control" />
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555', fontWeight: '500' }}>
-              Status *
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-              style={inputStyle}
-            >
+          <div className="col-12 col-md-4">
+            <label className="form-label">Status *</label>
+            <select value={status} onChange={(e) => setStatus(e.target.value)} required className="form-select">
               <option value="Present">Present</option>
               <option value="Absent">Absent</option>
             </select>
           </div>
 
           {status === 'Present' && (
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555', fontWeight: '500' }}>
-                Overtime Hours
-              </label>
-              <input
-                type="number"
-                value={overtime}
-                onChange={(e) => setOvertime(e.target.value)}
-                min="0"
-                step="0.5"
-                style={inputStyle}
-              />
+            <div className="col-12 col-md-4">
+              <label className="form-label">Overtime Hours</label>
+              <input type="number" value={overtime} onChange={(e) => setOvertime(e.target.value)} min="0" step="0.5" className="form-control" />
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: '0.75rem 2rem',
-              backgroundColor: loading ? '#95a5a6' : '#27ae60',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontWeight: '500'
-            }}
-          >
-            {loading ? 'Marking...' : 'Mark Attendance'}
-          </button>
+          <div className="col-12">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Marking...' : 'Mark Attendance'}
+            </button>
+          </div>
         </form>
       </div>
 
-      {/* Recent Attendance Records */}
-      <div style={cardStyle}>
-        <h2 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#2c3e50' }}>Recent Attendance Records</h2>
+      <div className="card p-3">
+        <h5 style={{ color: 'var(--primary)' }}>Recent Attendance Records</h5>
         {attendanceRecords.length === 0 ? (
-          <p style={{ color: '#666' }}>No attendance records found</p>
+          <p className="muted-small">No attendance records found</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="table-responsive mt-2">
+            <table className="table table-striped">
               <thead>
-                <tr style={{ backgroundColor: '#f8f9fa' }}>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Worker</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Site</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Date</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
-                  <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Overtime</th>
+                <tr>
+                  <th>Worker</th>
+                  <th>Site</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Overtime</th>
                 </tr>
               </thead>
               <tbody>
                 {attendanceRecords.slice(0, 10).map((record) => (
-                  <tr key={record._id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                    <td style={{ padding: '0.75rem' }}>
-                      {record.workerID?.name || 'N/A'}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      {record.siteID?.siteName || 'N/A'}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      {new Date(record.date).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <span style={{
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '12px',
-                        fontSize: '0.85rem',
-                        backgroundColor: record.status === 'Present' ? '#d4edda' : '#f8d7da',
-                        color: record.status === 'Present' ? '#155724' : '#721c24'
-                      }}>
+                  <tr key={record._id}>
+                    <td>{record.workerID?.name || 'N/A'}</td>
+                    <td>{record.siteID?.siteName || 'N/A'}</td>
+                    <td>{formatDate(record.date)}</td>
+                    <td>
+                      <span className={`badge ${record.status === 'Present' ? 'bg-success' : 'bg-danger'}`}>
                         {record.status}
                       </span>
                     </td>
-                    <td style={{ padding: '0.75rem' }}>
-                      {record.overtime || 0} hrs
-                    </td>
+                    <td>{record.overtime || 0} hrs</td>
                   </tr>
                 ))}
               </tbody>

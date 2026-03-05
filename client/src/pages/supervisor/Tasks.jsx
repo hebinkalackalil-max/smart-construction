@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import Modal from '../../components/Modal';
+import { formatDate } from '../../utils/dateFormat';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -132,137 +133,72 @@ const Tasks = () => {
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0, color: '#2c3e50' }}>Task Management</h1>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            type="text"
-            placeholder="Search by task description"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '0.9rem',
-              minWidth: '220px'
-            }}
-          />
-          <select
-            value={siteFilter}
-            onChange={(e) => setSiteFilter(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '0.9rem'
-            }}
-          >
-            <option value="all">All Sites</option>
-            {sites.map((site) => (
-              <option key={site._id} value={site._id}>
-                {site.siteName}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '0.9rem'
-            }}
-          >
-            <option value="all">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <button
-            onClick={handleOpenModal}
-            style={{
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            + Assign Task
-          </button>
+    <div className="app-container">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 style={{ color: 'var(--primary)', margin: 0 }}>Task Management</h1>
+      </div>
+
+      <div className="card p-3 mb-3">
+        <div className="row g-2 align-items-center">
+          <div className="col-12 col-md-5">
+            <input type="text" className="form-control" placeholder="Search by task description" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
+          <div className="col-12 col-md-3">
+            <select value={siteFilter} onChange={(e) => setSiteFilter(e.target.value)} className="form-select">
+              <option key="all-sites" value="all">All Sites</option>
+              {sites.map((site) => (
+                <option key={site._id} value={site._id}>{site.siteName}</option>
+              ))}
+            </select>
+          </div>
+          <div className="col-12 col-md-2">
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="form-select">
+              <option key="all" value="all">All Statuses</option>
+              <option key="Pending" value="Pending">Pending</option>
+              <option key="In Progress" value="In Progress">In Progress</option>
+              <option key="Completed" value="Completed">Completed</option>
+            </select>
+          </div>
+          <div className="col-12 col-md-2 text-md-end">
+            <button className="btn btn-primary" onClick={handleOpenModal}>+ Assign Task</button>
+          </div>
         </div>
       </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Task</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Worker</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Site</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTasks.length === 0 ? (
+      <div className="card p-2">
+        <div className="table-responsive">
+          <table className="table table-hover mb-0">
+            <thead>
               <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-                  No tasks found
-                </td>
+                <th>Task</th>
+                <th>Worker</th>
+                <th>Site</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              filteredTasks.map((task) => (
-                <tr key={task._id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                  <td style={{ padding: '1rem', maxWidth: '300px' }}>
-                    <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{task.taskDescription}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                      Assigned: {new Date(task.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    {task.workerID?.name || 'N/A'}
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    {task.siteID?.siteName || 'N/A'}
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '12px',
-                      fontSize: '0.85rem',
-                      backgroundColor: getStatusColor(task.status) + '20',
-                      color: getStatusColor(task.status)
-                    }}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    <button
-                      onClick={() => handleDelete(task._id)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#e74c3c',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
+            </thead>
+            <tbody>
+              {filteredTasks.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 muted-small">No tasks found</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                filteredTasks.map((task) => (
+                  <tr key={task._id}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{task.taskDescription}</div>
+                      <div className="muted-small">Assigned: {formatDate(task.createdAt)}</div>
+                    </td>
+                    <td>{task.workerID?.name || 'N/A'}</td>
+                    <td>{task.siteID?.siteName || 'N/A'}</td>
+                    <td><span className="badge" style={{ backgroundColor: getStatusColor(task.status) + '20', color: getStatusColor(task.status) }}>{task.status}</span></td>
+                    <td><button className="btn btn-sm btn-danger" onClick={() => handleDelete(task._id)}>Delete</button></td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Modal
@@ -279,8 +215,8 @@ const Tasks = () => {
               required
               style={inputStyle}
             >
-              <option value="">Select Site</option>
-              {sites.map((site) => (
+              <option key="site-empty" value="">Select Site</option>
+              {sites.filter(s => s.status === 'Ongoing').map((site) => (
                 <option key={site._id} value={site._id}>
                   {site.siteName} - {site.location}
                 </option>
@@ -297,9 +233,9 @@ const Tasks = () => {
               disabled={!formData.siteID}
               style={inputStyle}
             >
-              <option value="">Select Worker</option>
+              <option key="worker-empty" value="">Select Worker</option>
               {workers.map((worker) => (
-                <option key={worker.id} value={worker.id}>
+                <option key={worker._id || worker.id} value={worker._id || worker.id}>
                   {worker.name} ({worker.email})
                 </option>
               ))}

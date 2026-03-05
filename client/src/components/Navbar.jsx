@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/InShot_.png';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -27,47 +28,59 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={{
-      backgroundColor: '#2c3e50',
-      color: 'white',
-      padding: '1rem 2rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        <Link to={getDashboardPath()} style={{ 
-          color: 'white', 
-          textDecoration: 'none', 
-          fontSize: '1.5rem', 
-          fontWeight: 'bold' 
-        }}>
-          Construction Management
+    <nav className="navbar navbar-expand-lg navbar-dark app-navbar">
+      <div className="container-fluid">
+        <Link className="navbar-brand d-flex align-items-center" to={getDashboardPath()}>
+          <img src={logo} alt="Logo" style={{ height: '40px', marginRight: '12px' }} />
+          <span>Construction Management</span>
+          <span className="brand-badge ms-2">CMS</span>
         </Link>
-      </div>
-      
-      {user && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <span style={{ textTransform: 'capitalize' }}>
-            {user.name} ({user.role})
-          </span>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#e74c3c',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.9rem'
-            }}
-          >
-            Logout
-          </button>
+
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+            {!user ? (
+              <li className="nav-item">
+                <Link className="nav-link" to="/login">Login</Link>
+              </li>
+            ) : (
+              <li className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle d-flex align-items-center"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span className="me-2" style={{ fontWeight: 600 }}>{user.name}</span>
+                  <small className="text-capitalize">({user.role})</small>
+                </a>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li>
+                    <Link className="dropdown-item" to={getDashboardPath()}>Dashboard</Link>
+                  </li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button>
+                  </li>
+                </ul>
+              </li>
+            )}
+          </ul>
         </div>
-      )}
+      </div>
     </nav>
   );
 };

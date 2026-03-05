@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/InShot_.png';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -71,97 +72,54 @@ const Register = () => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#2c3e50' }}>
-          Register
-        </h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <img src={logo} alt="Logo" style={{ height: '80px', marginBottom: '1rem' }} />
+          <h1>Create Account</h1>
+          <p>Register a new user</p>
+        </div>
 
         {error && (
-          <div style={{
-            backgroundColor: '#fee',
-            color: '#c33',
-            padding: '0.75rem',
-            borderRadius: '4px',
-            marginBottom: '1rem',
-            fontSize: '0.9rem'
-          }}>
+          <div className="alert alert-danger" role="alert">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>
-              Name
-            </label>
+          <div className="form-group">
+            <label className="form-label">Full Name</label>
             <input
               type="text"
               name="name"
+              className="form-control"
+              placeholder="Enter your full name"
               value={formData.name}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
             />
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>
-              Email
-            </label>
+          <div className="form-group">
+            <label className="form-label">Email</label>
             <input
               type="email"
               name="email"
+              className="form-control"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
             />
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>
-              Role
-            </label>
+          <div className="form-group">
+            <label className="form-label">Role</label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
+              className="form-select"
             >
               <option value="worker">Worker</option>
               <option value="supervisor">Supervisor</option>
@@ -170,73 +128,43 @@ const Register = () => {
             </select>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>
-              Password
-            </label>
+          <div className="form-group">
+            <label className="form-label">Password</label>
             <input
               type="password"
               name="password"
+              className="form-control"
+              placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
             />
           </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>
-              Confirm Password
-            </label>
+          <div className="form-group">
+            <label className="form-label">Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
+              className="form-control"
+              placeholder="Confirm your password"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              backgroundColor: loading ? '#95a5a6' : '#27ae60',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              marginBottom: '1rem'
-            }}
-          >
-            {loading ? 'Registering...' : 'Register'}
+          <button type="submit" className="btn btn-primary w-100 btn-lg" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#3498db', textDecoration: 'none' }}>
-            Login
-          </Link>
-        </p>
+        <div className="auth-footer">
+          <p>
+            Already have an account?{' '}
+            <Link to="/login">Sign in</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

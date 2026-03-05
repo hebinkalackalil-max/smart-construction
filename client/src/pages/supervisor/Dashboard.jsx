@@ -52,154 +52,88 @@ const SupervisorDashboard = () => {
   };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p className="mt-3">Loading dashboard...</p>
+      </div>
+    );
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    marginBottom: '1.5rem'
-  };
-
-  const statCardStyle = {
-    backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    textAlign: 'center'
-  };
-
   return (
-    <div>
-      <h1 style={{ marginBottom: '2rem', color: '#2c3e50' }}>Supervisor Dashboard</h1>
+    <div className="app-container">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Supervisor Dashboard</h1>
+          <p className="text-muted mb-0">Manage your assigned sites and workers</p>
+        </div>
+      </div>
 
-      {/* Statistics Cards */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-          <div style={statCardStyle}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Assigned Sites</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-              {stats.sites || 0}
-            </p>
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-md-4">
+            <div className="stat-card">
+              <div className="stat-label">Assigned Sites</div>
+              <div className="stat-value text-primary">{stats.sites || 0}</div>
+            </div>
           </div>
 
-          <div style={statCardStyle}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Attendance Records</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-              {stats.attendance?.total || 0}
-            </p>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-              {stats.attendance?.present || 0} Present, {stats.attendance?.absent || 0} Absent
-            </p>
+          <div className="col-12 col-md-4">
+            <div className="stat-card">
+              <div className="stat-label">Attendance Records</div>
+              <div className="stat-value text-success">{stats.attendance?.total || 0}</div>
+              <div className="stat-subtext">{stats.attendance?.present || 0} Present · {stats.attendance?.absent || 0} Absent</div>
+            </div>
           </div>
 
-          <div style={statCardStyle}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Tasks</h3>
-            <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#e67e22' }}>
-              {stats.tasks?.total || 0}
-            </p>
-            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-              {stats.tasks?.pending || 0} Pending, {stats.tasks?.completed || 0} Completed
-            </p>
+          <div className="col-12 col-md-4">
+            <div className="stat-card">
+              <div className="stat-label">Total Tasks</div>
+              <div className="stat-value text-warning">{stats.tasks?.total || 0}</div>
+              <div className="stat-subtext">{stats.tasks?.pending || 0} Pending · {stats.tasks?.completed || 0} Completed</div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Assigned Sites */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ margin: 0, color: '#2c3e50' }}>My Assigned Sites</h2>
-          <Link
-            to="/supervisor/sites"
-            style={{
-              color: '#3498db',
-              textDecoration: 'none',
-              fontSize: '0.9rem'
-            }}
-          >
-            View All →
-          </Link>
-        </div>
-        {sites.length === 0 ? (
-          <p style={{ color: '#666' }}>No sites assigned</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-            {sites.slice(0, 3).map((site) => (
-              <div
-                key={site._id}
-                style={{
-                  padding: '1rem',
-                  border: '1px solid #dee2e6',
-                  borderRadius: '4px',
-                  backgroundColor: '#f8f9fa'
-                }}
-              >
-                <h3 style={{ margin: '0 0 0.5rem 0', color: '#2c3e50' }}>{site.siteName}</h3>
-                <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.9rem' }}>
-                  📍 {site.location}
-                </p>
-                <p style={{ margin: '0.5rem 0 0 0' }}>
-                  <span style={{
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '12px',
-                    fontSize: '0.85rem',
-                    backgroundColor: site.status === 'Ongoing' ? '#d4edda' : '#f8d7da',
-                    color: site.status === 'Ongoing' ? '#155724' : '#721c24'
-                  }}>
-                    {site.status}
-                  </span>
-                </p>
-              </div>
-            ))}
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="card-title text-primary mb-0">🏗️ My Assigned Sites</h5>
+            <Link to="/supervisor/sites">View All →</Link>
           </div>
-        )}
+
+          {sites.length === 0 ? (
+            <p className="text-muted">No sites assigned</p>
+          ) : (
+            <div className="row g-3">
+              {sites.slice(0, 3).map((site) => (
+                <div key={site._id} className="col-12 col-md-4">
+                  <div className="card">
+                    <div className="card-body">
+                      <h6 className="text-primary mb-1">{site.siteName}</h6>
+                      <p className="text-muted mb-2">📍 {site.location}</p>
+                      <span className={`badge ${site.status === 'Ongoing' ? 'bg-success' : site.status === 'Temporarily Paused' ? 'bg-warning text-dark' : 'bg-secondary'}`}>
+                        {site.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div style={cardStyle}>
-        <h2 style={{ margin: '0 0 1rem 0', color: '#2c3e50' }}>Quick Actions</h2>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <Link
-            to="/supervisor/attendance"
-            style={{
-              padding: '1rem 1.5rem',
-              backgroundColor: '#27ae60',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
-          >
-            Mark Attendance
-          </Link>
-          <Link
-            to="/supervisor/tasks"
-            style={{
-              padding: '1rem 1.5rem',
-              backgroundColor: '#3498db',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
-          >
-            Assign Task
-          </Link>
-          <Link
-            to="/supervisor/equipment"
-            style={{
-              padding: '1rem 1.5rem',
-              backgroundColor: '#9b59b6',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
-          >
-            Track Equipment
-          </Link>
+      <div className="card">
+        <div className="card-body">
+          <h5 className="card-title text-primary">⚡ Quick Actions</h5>
+          <div className="quick-actions">
+            <Link to="/supervisor/site-workers" className="btn btn-outline-primary">Site Workers</Link>
+            <Link to="/supervisor/attendance" className="btn btn-primary">Mark Attendance</Link>
+            <Link to="/supervisor/tasks" className="btn btn-outline-primary">Assign Task</Link>
+            <Link to="/supervisor/equipment" className="btn btn-outline-secondary">Track Equipment</Link>
+          </div>
         </div>
       </div>
     </div>

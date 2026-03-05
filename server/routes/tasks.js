@@ -31,8 +31,17 @@ router.post('/', auth, authorize('supervisor', 'admin'), async (req, res) => {
       return res.status(400).json({ message: 'Invalid site ID' });
     }
 
+    if (site.isActive === false && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'This site is not available' });
+    }
+
+    // Tasks can only be assigned to Ongoing sites (Temporarily Paused = disabled for use)
+    if (site.status !== 'Ongoing') {
+      return res.status(400).json({ message: 'Tasks can only be assigned to Ongoing sites' });
+    }
+
     // Supervisor can only assign tasks for their assigned sites
-    if (req.user.role === 'supervisor' && site.supervisorID.toString() !== req.user.id) {
+    if (req.user.role === 'supervisor' && site.supervisorID.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'You can only assign tasks for your assigned sites' });
     }
 
@@ -41,7 +50,7 @@ router.post('/', auth, authorize('supervisor', 'admin'), async (req, res) => {
       siteID,
       taskDescription,
       status: 'Pending',
-      assignedBy: req.user.id
+      assignedBy: req.user._id
     });
 
     const populated = await Task.findById(task._id)
@@ -73,7 +82,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     // Worker can only update their own tasks
-    if (req.user.role === 'worker' && task.workerID.toString() !== req.user.id) {
+    if (req.user.role === 'worker' && task.workerID.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'You can only update your own tasks' });
     }
 
@@ -111,17 +120,18 @@ router.put('/:id', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
   try {
     let tasks;
+    const userId = req.user._id.toString();
 
     if (req.user.role === 'worker') {
       // Worker sees only their tasks
-      tasks = await Task.find({ workerID: req.user.id })
+      tasks = await Task.find({ workerID: userId })
         .populate('workerID', 'name email')
         .populate('siteID', 'siteName location')
         .populate('assignedBy', 'name email')
         .sort({ createdAt: -1 });
     } else if (req.user.role === 'supervisor') {
-      // Supervisor sees tasks for their assigned sites
-      const sites = await Site.find({ supervisorID: req.user.id });
+      // Supervisor sees tasks for their assigned sites (active only; deactivated hidden)
+      const sites = await Site.find({ supervisorID: userId, isActive: { $ne: false } });
       const siteIds = sites.map(site => site._id);
       tasks = await Task.find({ siteID: { $in: siteIds } })
         .populate('workerID', 'name email')
@@ -164,14 +174,16 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     // Worker can only see their own tasks
-    if (req.user.role === 'worker' && task.workerID._id.toString() !== req.user.id) {
+    const workerIdStr = task.workerID?._id ? task.workerID._id.toString() : task.workerID?.toString?.() || '';
+    if (req.user.role === 'worker' && workerIdStr !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    // Supervisor can only see tasks for their assigned sites
+    // Supervisor can only see tasks for their assigned sites (deactivated = not found)
     if (req.user.role === 'supervisor') {
-      const site = await Site.findById(task.siteID._id);
-      if (site.supervisorID.toString() !== req.user.id) {
+      const siteId = task.siteID?._id || task.siteID;
+      const site = await Site.findById(siteId);
+      if (!site || site.isActive === false || site.supervisorID.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }
@@ -196,10 +208,10 @@ router.delete('/:id', auth, authorize('supervisor', 'admin'), async (req, res) =
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Supervisor can only delete tasks for their assigned sites
+    // Supervisor can only delete tasks for their assigned sites (deactivated = not found)
     if (req.user.role === 'supervisor') {
       const site = await Site.findById(task.siteID);
-      if (site.supervisorID.toString() !== req.user.id) {
+      if (!site || site.isActive === false || site.supervisorID.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }

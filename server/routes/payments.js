@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Payment = require('../models/Payment');
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
@@ -25,12 +26,22 @@ router.post('/', auth, authorize('accountant', 'admin'), async (req, res) => {
       return res.status(400).json({ message: 'Invalid worker ID' });
     }
 
+    // Normalize date range: start of startDate (00:00:00) to end of endDate (23:59:59.999)
+    // so we include the full start and end days regardless of how attendance dates were stored
+    const rangeStart = new Date(startDate);
+    rangeStart.setUTCHours(0, 0, 0, 0);
+    const rangeEnd = new Date(endDate);
+    rangeEnd.setUTCHours(23, 59, 59, 999);
+
+    // Match workerID as ObjectId (frontend may send string)
+    const workerObjectId = mongoose.Types.ObjectId.isValid(workerID) ? new mongoose.Types.ObjectId(workerID) : workerID;
+
     // Get attendance records for the date range
     const attendance = await Attendance.find({
-      workerID,
+      workerID: workerObjectId,
       date: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $gte: rangeStart,
+        $lte: rangeEnd
       },
       status: 'Present'
     });
@@ -98,9 +109,10 @@ router.put('/:id/approve', auth, authorize('accountant', 'admin'), async (req, r
 router.get('/', auth, async (req, res) => {
   try {
     let payments;
+    const userId = req.user._id.toString();
 
     if (req.user.role === 'worker') {
-      payments = await Payment.find({ workerID: req.user.id })
+      payments = await Payment.find({ workerID: userId })
         .populate('workerID', 'name email')
         .sort({ createdAt: -1 });
     } else if (req.user.role === 'accountant' || req.user.role === 'admin') {
@@ -127,7 +139,7 @@ router.get('/', auth, async (req, res) => {
 router.get('/worker/:workerId', auth, async (req, res) => {
   try {
     // Worker can only see their own payments
-    if (req.user.role === 'worker' && req.params.workerId !== req.user.id) {
+    if (req.user.role === 'worker' && req.params.workerId !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -158,7 +170,8 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     // Worker can only see their own payments
-    if (req.user.role === 'worker' && payment.workerID._id.toString() !== req.user.id) {
+    const workerIdStr = payment.workerID?._id ? payment.workerID._id.toString() : payment.workerID?.toString?.() || '';
+    if (req.user.role === 'worker' && workerIdStr !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Access denied' });
     }
 

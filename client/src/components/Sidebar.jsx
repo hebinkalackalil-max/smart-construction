@@ -7,86 +7,82 @@ const Sidebar = ({ user }) => {
     return location.pathname === path;
   };
 
-  const linkStyle = (path) => ({
-    display: 'block',
-    padding: '1rem',
-    color: isActive(path) ? '#3498db' : '#333',
-    textDecoration: 'none',
-    backgroundColor: isActive(path) ? '#ecf0f1' : 'transparent',
-    borderLeft: isActive(path) ? '4px solid #3498db' : '4px solid transparent',
-    transition: 'all 0.3s'
-  });
-
   const getAdminLinks = () => (
     <>
-      <Link to="/admin/dashboard" style={linkStyle('/admin/dashboard')}>
+      <Link to="/admin/dashboard" className={`sidebar-link ${isActive('/admin/dashboard') ? 'active' : ''}`}>
         Dashboard
       </Link>
-      <Link to="/admin/sites" style={linkStyle('/admin/sites')}>
-        Sites
+      <Link to="/admin/sites" className={`sidebar-link ${isActive('/admin/sites') ? 'active' : ''}`}>
+        🏗️ Sites
       </Link>
-      <Link to="/admin/users" style={linkStyle('/admin/users')}>
-        Users
+      <Link to="/admin/users" className={`sidebar-link ${isActive('/admin/users') ? 'active' : ''}`}>
+        👥 Users
       </Link>
-      <Link to="/admin/equipment" style={linkStyle('/admin/equipment')}>
-        Equipment
+      <Link to="/admin/equipment" className={`sidebar-link ${isActive('/admin/equipment') ? 'active' : ''}`}>
+        🔧 Equipment
       </Link>
-      <Link to="/admin/reports" style={linkStyle('/admin/reports')}>
-        Reports
+      <Link to="/admin/reports" className={`sidebar-link ${isActive('/admin/reports') ? 'active' : ''}`}>
+        📈 Reports
       </Link>
     </>
   );
 
   const getSupervisorLinks = () => (
     <>
-      <Link to="/supervisor/dashboard" style={linkStyle('/supervisor/dashboard')}>
+      <Link to="/supervisor/dashboard" className={`sidebar-link ${isActive('/supervisor/dashboard') ? 'active' : ''}`}>
         Dashboard
       </Link>
-      <Link to="/supervisor/sites" style={linkStyle('/supervisor/sites')}>
-        My Sites
+      <Link to="/supervisor/sites" className={`sidebar-link ${isActive('/supervisor/sites') ? 'active' : ''}`}>
+        🏗️ My Sites
       </Link>
-      <Link to="/supervisor/attendance" style={linkStyle('/supervisor/attendance')}>
-        Attendance
+      <Link to="/supervisor/site-workers" className={`sidebar-link ${isActive('/supervisor/site-workers') ? 'active' : ''}`}>
+        👷 Site Workers
       </Link>
-      <Link to="/supervisor/tasks" style={linkStyle('/supervisor/tasks')}>
-        Tasks
+      <Link to="/supervisor/attendance" className={`sidebar-link ${isActive('/supervisor/attendance') ? 'active' : ''}`}>
+        📋 Attendance
       </Link>
-      <Link to="/supervisor/equipment" style={linkStyle('/supervisor/equipment')}>
-        Equipment
+      <Link to="/supervisor/tasks" className={`sidebar-link ${isActive('/supervisor/tasks') ? 'active' : ''}`}>
+        ✅ Tasks
+      </Link>
+      <Link to="/supervisor/equipment" className={`sidebar-link ${isActive('/supervisor/equipment') ? 'active' : ''}`}>
+        🔧 Equipment
       </Link>
     </>
   );
 
   const getWorkerLinks = () => (
     <>
-      <Link to="/worker/dashboard" style={linkStyle('/worker/dashboard')}>
+      <Link to="/worker/dashboard" className={`sidebar-link ${isActive('/worker/dashboard') ? 'active' : ''}`}>
         Dashboard
       </Link>
-      <Link to="/worker/attendance" style={linkStyle('/worker/attendance')}>
-        My Attendance
+      <Link to="/worker/attendance" className={`sidebar-link ${isActive('/worker/attendance') ? 'active' : ''}`}>
+        📋 My Attendance
       </Link>
-      <Link to="/worker/tasks" style={linkStyle('/worker/tasks')}>
-        My Tasks
+      <Link to="/worker/tasks" className={`sidebar-link ${isActive('/worker/tasks') ? 'active' : ''}`}>
+        ✅ My Tasks
       </Link>
-      <Link to="/worker/payments" style={linkStyle('/worker/payments')}>
-        Payments
+      <Link to="/worker/payments" className={`sidebar-link ${isActive('/worker/payments') ? 'active' : ''}`}>
+        💰 Payments
       </Link>
     </>
   );
 
   const getAccountantLinks = () => (
     <>
-      <Link to="/accountant/dashboard" style={linkStyle('/accountant/dashboard')}>
+      <Link to="/accountant/dashboard" className={`sidebar-link ${isActive('/accountant/dashboard') ? 'active' : ''}`}>
         Dashboard
       </Link>
-      <Link to="/accountant/calculate" style={linkStyle('/accountant/calculate')}>
-        Calculate Salary
+      <Link to="/accountant/attendance" className={`sidebar-link ${isActive('/accountant/attendance') ? 'active' : ''}`}>
+        📋 Attendance Records
       </Link>
-      <Link to="/accountant/payments" style={linkStyle('/accountant/payments')}>
-        Payments
+      <Link to="/accountant/calculate" className={`sidebar-link ${isActive('/accountant/calculate') ? 'active' : ''}`}>
+        🧮 Calculate Salary
       </Link>
-      <Link to="/accountant/reports" style={linkStyle('/accountant/reports')}>
-        Reports
+      <Link to="/accountant/payments" className={`sidebar-link ${isActive('/accountant/payments') ? 'active' : ''}`}>
+        💳 Payments
+      </Link>
+      <Link to="/accountant/reports" className={`sidebar-link ${isActive('/accountant/reports') ? 'active' : ''}`}>
+        📈 Reports
       </Link>
     </>
   );
@@ -107,13 +103,7 @@ const Sidebar = ({ user }) => {
   };
 
   return (
-    <aside style={{
-      width: '250px',
-      backgroundColor: '#f8f9fa',
-      minHeight: 'calc(100vh - 60px)',
-      padding: '1rem 0',
-      borderRight: '1px solid #dee2e6'
-    }}>
+    <aside className="app-sidebar">
       <nav style={{ display: 'flex', flexDirection: 'column' }}>
         {getLinks()}
       </nav>

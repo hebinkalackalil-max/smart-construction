@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import Modal from '../../components/Modal';
+import { formatDate } from '../../utils/dateFormat';
 
 const Equipment = () => {
   const [equipment, setEquipment] = useState([]);
@@ -96,114 +97,67 @@ const Equipment = () => {
     }
   };
 
+  const getStatusBadgeClass = (status) => {
+    const classes = {
+      Available: 'status-available',
+      'In Use': 'status-ongoing',
+      Maintenance: 'status-maintenance'
+    };
+    return classes[status] || 'badge-secondary';
+  };
+
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p className="mt-3">Loading equipment...</p>
+      </div>
+    );
   }
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    boxSizing: 'border-box',
-    marginBottom: '1rem'
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      Available: '#27ae60',
-      'In Use': '#3498db',
-      Maintenance: '#e67e22'
-    };
-    return colors[status] || '#95a5a6';
-  };
-
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0, color: '#2c3e50' }}>Equipment Management</h1>
-        <button
-          onClick={() => handleOpenModal()}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#3498db',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '1rem'
-          }}
-        >
+    <div className="app-container">
+      <div className="page-actions">
+        <h1 className="page-title">Equipment Management</h1>
+        <button onClick={() => handleOpenModal()} className="btn btn-primary">
           + Add Equipment
         </button>
       </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="data-table-container">
+        <table className="data-table">
           <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Equipment Name</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Site</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Status</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Last Maintenance</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>Actions</th>
+            <tr>
+              <th>Equipment Name</th>
+              <th>Site</th>
+              <th>Status</th>
+              <th>Last Maintenance</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {equipment.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
-                  No equipment found
-                </td>
+              <tr className="empty-row">
+                <td colSpan="5">No equipment found</td>
               </tr>
             ) : (
               equipment.map((item) => (
-                <tr key={item._id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                  <td style={{ padding: '1rem' }}>{item.equipmentName}</td>
-                  <td style={{ padding: '1rem' }}>
-                    {item.siteID?.siteName || 'N/A'}
-                  </td>
-                  <td style={{ padding: '1rem' }}>
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '12px',
-                      fontSize: '0.85rem',
-                      backgroundColor: getStatusColor(item.status) + '20',
-                      color: getStatusColor(item.status)
-                    }}>
+                <tr key={item._id}>
+                  <td className="fw-semibold">{item.equipmentName}</td>
+                  <td>{item.siteID?.siteName || 'N/A'}</td>
+                  <td>
+                    <span className={`status-badge ${getStatusBadgeClass(item.status)}`}>
                       {item.status}
                     </span>
                   </td>
-                  <td style={{ padding: '1rem' }}>
-                    {item.lastMaintenance ? new Date(item.lastMaintenance).toLocaleDateString() : 'N/A'}
+                  <td>
+                    {item.lastMaintenance ? formatDate(item.lastMaintenance) : 'N/A'}
                   </td>
-                  <td style={{ padding: '1rem' }}>
-                    <button
-                      onClick={() => handleOpenModal(item)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#f39c12',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginRight: '0.5rem'
-                      }}
-                    >
+                  <td>
+                    <button onClick={() => handleOpenModal(item)} className="action-btn action-btn-edit">
                       Edit
                     </button>
-                    <button
-                      onClick={() => handleDelete(item._id)}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#e74c3c',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
+                    <button onClick={() => handleDelete(item._id)} className="action-btn action-btn-delete">
                       Delete
                     </button>
                   </td>
@@ -220,24 +174,24 @@ const Equipment = () => {
         title={editingEquipment ? 'Edit Equipment' : 'Add New Equipment'}
       >
         <form onSubmit={handleSubmit}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Equipment Name</label>
+          <div className="form-group">
+            <label className="form-label">Equipment Name</label>
             <input
               type="text"
               value={formData.equipmentName}
               onChange={(e) => setFormData({ ...formData, equipmentName: e.target.value })}
               required
-              style={inputStyle}
+              className="form-control"
             />
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Site</label>
+          <div className="form-group">
+            <label className="form-label">Site</label>
             <select
               value={formData.siteID}
               onChange={(e) => setFormData({ ...formData, siteID: e.target.value })}
               required
-              style={inputStyle}
+              className="form-select"
             >
               <option value="">Select Site</option>
               {sites.map((site) => (
@@ -248,12 +202,12 @@ const Equipment = () => {
             </select>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Status</label>
+          <div className="form-group">
+            <label className="form-label">Status</label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              style={inputStyle}
+              className="form-select"
             >
               <option value="Available">Available</option>
               <option value="In Use">In Use</option>
@@ -261,42 +215,21 @@ const Equipment = () => {
             </select>
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#555' }}>Last Maintenance (Optional)</label>
+          <div className="form-group">
+            <label className="form-label">Last Maintenance (Optional)</label>
             <input
               type="date"
               value={formData.lastMaintenance}
               onChange={(e) => setFormData({ ...formData, lastMaintenance: e.target.value })}
-              style={inputStyle}
+              className="form-control"
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              onClick={handleCloseModal}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#95a5a6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
+          <div className="form-actions">
+            <button type="button" onClick={handleCloseModal} className="btn btn-secondary">
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#3498db',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
+            <button type="submit" className="btn btn-primary">
               {editingEquipment ? 'Update' : 'Create'}
             </button>
           </div>

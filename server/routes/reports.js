@@ -11,12 +11,13 @@ const router = express.Router();
 
 // @route   GET /api/reports
 // @desc    Get system reports and statistics
-// @access  Private (Admin only)
-router.get('/', auth, authorize('admin'), async (req, res) => {
+// @access  Private (Admin, Accountant)
+router.get('/', auth, authorize('admin', 'accountant'), async (req, res) => {
   try {
     // Get counts
     const totalSites = await Site.countDocuments();
     const ongoingSites = await Site.countDocuments({ status: 'Ongoing' });
+    const pausedSites = await Site.countDocuments({ status: 'Temporarily Paused' });
     const completedSites = await Site.countDocuments({ status: 'Completed' });
 
     const totalUsers = await User.countDocuments();
@@ -65,6 +66,7 @@ router.get('/', auth, authorize('admin'), async (req, res) => {
         sites: {
           total: totalSites,
           ongoing: ongoingSites,
+          paused: pausedSites,
           completed: completedSites
         },
         users: {

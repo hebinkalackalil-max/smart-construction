@@ -18,8 +18,16 @@ const siteSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Ongoing', 'Completed'],
+    enum: ['Ongoing', 'Temporarily Paused', 'Completed'],
     default: 'Ongoing'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  workerIDs: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: []
   }
 }, {
   timestamps: true

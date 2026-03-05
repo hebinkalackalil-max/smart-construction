@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
+import './Dashboard.css';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -21,100 +22,107 @@ const AdminDashboard = () => {
   };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return (
+      <div className="loading-container-dark">
+        <div className="spinner-dark"></div>
+        <p style={{ marginTop: '1rem' }}>Loading dashboard...</p>
+      </div>
+    );
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    marginBottom: '1.5rem'
-  };
-
-  const statCardStyle = {
-    backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    textAlign: 'center'
-  };
-
   return (
-    <div>
-      <h1 style={{ marginBottom: '2rem', color: '#2c3e50' }}>Admin Dashboard</h1>
+    <div className="admin-dashboard">
+      {/* Main content */}
+      <div className="dashboard-content">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">Admin Dashboard</h1>
+          <p className="dashboard-subtitle">Overview of your construction management system</p>
+        </div>
 
-      {stats && (
-        <>
-          {/* Statistics Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-            <div style={statCardStyle}>
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Sites</h3>
-              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                {stats.sites?.total || 0}
-              </p>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-                {stats.sites?.ongoing || 0} Ongoing, {stats.sites?.completed || 0} Completed
-              </p>
+        {stats && (
+          <>
+            <div className="stats-grid">
+              <div className="stat-card-dark">
+                <div className="stat-label">Total Sites</div>
+                <div className="stat-value stat-primary">{stats.sites?.total || 0}</div>
+                <div className="stat-subtext">{stats.sites?.ongoing || 0} Ongoing · {stats.sites?.paused || 0} Paused · {stats.sites?.completed || 0} Completed</div>
+              </div>
+
+              <div className="stat-card-dark">
+                <div className="stat-label">Total Users</div>
+                <div className="stat-value stat-success">{stats.users?.total || 0}</div>
+                <div className="stat-subtext">{stats.users?.worker || 0} Workers · {stats.users?.supervisor || 0} Supervisors</div>
+              </div>
+
+              <div className="stat-card-dark">
+                <div className="stat-label">Total Payments</div>
+                <div className="stat-value stat-warning">{stats.payments?.total || 0}</div>
+                <div className="stat-subtext">{stats.payments?.pending || 0} Pending · {stats.payments?.paid || 0} Paid</div>
+              </div>
+
+              <div className="stat-card-dark">
+                <div className="stat-label">Total Equipment</div>
+                <div className="stat-value stat-info">{stats.equipment?.total || 0}</div>
+                <div className="stat-subtext">{stats.equipment?.available || 0} Available · {stats.equipment?.inUse || 0} In Use</div>
+              </div>
             </div>
 
-            <div style={statCardStyle}>
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Users</h3>
-              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                {stats.users?.total || 0}
-              </p>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-                {stats.users?.worker || 0} Workers, {stats.users?.supervisor || 0} Supervisors
-              </p>
-            </div>
+            <div className="overview-grid">
+              <div className="overview-card">
+                <h5 className="overview-card-title">📋 Attendance Overview</h5>
+                <div className="overview-row">
+                  <span className="overview-label">Total Records</span>
+                  <span className="overview-value text-white">{stats.attendance?.total || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Present</span>
+                  <span className="overview-value text-success">{stats.attendance?.present || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Absent</span>
+                  <span className="overview-value text-danger">{stats.attendance?.absent || 0}</span>
+                </div>
+              </div>
 
-            <div style={statCardStyle}>
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Payments</h3>
-              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#e67e22' }}>
-                {stats.payments?.total || 0}
-              </p>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-                {stats.payments?.pending || 0} Pending, {stats.payments?.paid || 0} Paid
-              </p>
-            </div>
+              <div className="overview-card">
+                <h5 className="overview-card-title">✅ Tasks Overview</h5>
+                <div className="overview-row">
+                  <span className="overview-label">Total Tasks</span>
+                  <span className="overview-value text-white">{stats.tasks?.total || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Pending</span>
+                  <span className="overview-value text-warning">{stats.tasks?.pending || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">In Progress</span>
+                  <span className="overview-value text-primary">{stats.tasks?.inProgress || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Completed</span>
+                  <span className="overview-value text-success">{stats.tasks?.completed || 0}</span>
+                </div>
+              </div>
 
-            <div style={statCardStyle}>
-              <h3 style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Equipment</h3>
-              <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#9b59b6' }}>
-                {stats.equipment?.total || 0}
-              </p>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#95a5a6' }}>
-                {stats.equipment?.available || 0} Available, {stats.equipment?.inUse || 0} In Use
-              </p>
+              <div className="overview-card">
+                <h5 className="overview-card-title">💰 Financial Summary</h5>
+                <div className="overview-row">
+                  <span className="overview-label">Total Salary Paid</span>
+                  <span className="overview-value text-success">₹{stats.payments?.totalSalaryPaid?.toLocaleString() || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Pending Payments</span>
+                  <span className="overview-value text-warning">{stats.payments?.pending || 0}</span>
+                </div>
+                <div className="overview-row">
+                  <span className="overview-label">Paid Payments</span>
+                  <span className="overview-value text-success">{stats.payments?.paid || 0}</span>
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Detailed Statistics */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            <div style={cardStyle}>
-              <h3 style={{ marginTop: 0, color: '#2c3e50' }}>Attendance Overview</h3>
-              <p><strong>Total Records:</strong> {stats.attendance?.total || 0}</p>
-              <p><strong>Present:</strong> {stats.attendance?.present || 0}</p>
-              <p><strong>Absent:</strong> {stats.attendance?.absent || 0}</p>
-            </div>
-
-            <div style={cardStyle}>
-              <h3 style={{ marginTop: 0, color: '#2c3e50' }}>Tasks Overview</h3>
-              <p><strong>Total Tasks:</strong> {stats.tasks?.total || 0}</p>
-              <p><strong>Pending:</strong> {stats.tasks?.pending || 0}</p>
-              <p><strong>In Progress:</strong> {stats.tasks?.inProgress || 0}</p>
-              <p><strong>Completed:</strong> {stats.tasks?.completed || 0}</p>
-            </div>
-
-            <div style={cardStyle}>
-              <h3 style={{ marginTop: 0, color: '#2c3e50' }}>Financial Summary</h3>
-              <p><strong>Total Salary Paid:</strong> ₹{stats.payments?.totalSalaryPaid?.toLocaleString() || 0}</p>
-              <p><strong>Pending Payments:</strong> {stats.payments?.pending || 0}</p>
-              <p><strong>Paid Payments:</strong> {stats.payments?.paid || 0}</p>
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

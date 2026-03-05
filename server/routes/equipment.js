@@ -16,16 +16,19 @@ router.get('/', auth, async (req, res) => {
     if (req.query.siteID) {
       query.siteID = req.query.siteID;
 
-      // Supervisor can only see equipment for their assigned sites
-      if (req.user.role === 'supervisor') {
-        const site = await Site.findById(req.query.siteID);
-        if (!site || site.supervisorID.toString() !== req.user.id) {
-          return res.status(403).json({ message: 'Access denied' });
-        }
+      const site = await Site.findById(req.query.siteID);
+      if (!site) {
+        return res.status(404).json({ message: 'Site not found' });
+      }
+      if (site.isActive === false && req.user.role !== 'admin') {
+        return res.status(404).json({ message: 'Site not found' });
+      }
+      if (req.user.role === 'supervisor' && site.supervisorID.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Access denied' });
       }
     } else if (req.user.role === 'supervisor') {
-      // Supervisor sees equipment for all their assigned sites
-      const sites = await Site.find({ supervisorID: req.user.id });
+      // Supervisor sees equipment for assigned sites only (active; deactivated hidden)
+      const sites = await Site.find({ supervisorID: req.user._id, isActive: { $ne: false } });
       const siteIds = sites.map(site => site._id);
       query.siteID = { $in: siteIds };
     }
@@ -56,10 +59,10 @@ router.get('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Equipment not found' });
     }
 
-    // Supervisor can only see equipment for their assigned sites
     if (req.user.role === 'supervisor') {
-      const site = await Site.findById(equipment.siteID._id);
-      if (site.supervisorID.toString() !== req.user.id) {
+      const siteId = equipment.siteID?._id || equipment.siteID;
+      const site = await Site.findById(siteId);
+      if (!site || site.isActive === false || site.supervisorID.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }
@@ -89,9 +92,10 @@ router.post('/', auth, authorize('admin', 'supervisor'), async (req, res) => {
     if (!site) {
       return res.status(400).json({ message: 'Invalid site ID' });
     }
-
-    // Supervisor can only add equipment to their assigned sites
-    if (req.user.role === 'supervisor' && site.supervisorID.toString() !== req.user.id) {
+    if (site.isActive === false && req.user.role !== 'admin') {
+      return res.status(400).json({ message: 'This site is not available' });
+    }
+    if (req.user.role === 'supervisor' && site.supervisorID.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'You can only add equipment to your assigned sites' });
     }
 
@@ -128,10 +132,10 @@ router.put('/:id', auth, authorize('admin', 'supervisor'), async (req, res) => {
       return res.status(404).json({ message: 'Equipment not found' });
     }
 
-    // Supervisor can only update equipment for their assigned sites
     if (req.user.role === 'supervisor') {
-      const site = await Site.findById(equipment.siteID);
-      if (site.supervisorID.toString() !== req.user.id) {
+      const siteId = equipment.siteID?._id || equipment.siteID;
+      const site = await Site.findById(siteId);
+      if (!site || site.isActive === false || site.supervisorID.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }

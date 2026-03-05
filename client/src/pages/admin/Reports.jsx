@@ -22,215 +22,156 @@ const Reports = () => {
   };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p className="mt-3">Loading reports...</p>
+      </div>
+    );
   }
 
-  const cardStyle = {
-    backgroundColor: 'white',
-    padding: '1.5rem',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    marginBottom: '1.5rem'
-  };
-
-  const sectionStyle = {
-    marginBottom: '2rem'
-  };
-
   return (
-    <div>
-      <h1 style={{ marginBottom: '2rem', color: '#2c3e50' }}>System Reports</h1>
+    <div className="app-container">
+      <div className="page-actions">
+        <h1 className="page-title">System Reports</h1>
+      </div>
 
       {reports && (
         <>
           {/* Sites Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Sites Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Sites</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.sites?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Ongoing</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.sites?.ongoing || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Completed</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#95a5a6' }}>
-                    {reports.sites?.completed || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Sites Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Sites</div>
+                <div className="stat-value stat-primary">{reports.sites?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Ongoing</div>
+                <div className="stat-value stat-success">{reports.sites?.ongoing || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Temporarily Paused</div>
+                <div className="stat-value stat-warning">{reports.sites?.paused || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Completed</div>
+                <div className="stat-value stat-secondary">{reports.sites?.completed || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Users Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Users Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Users</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.users?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Admins</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#e74c3c' }}>
-                    {reports.users?.admin || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Supervisors</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.users?.supervisor || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Workers</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.users?.worker || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Accountants</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
-                    {reports.users?.accountant || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Users Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Users</div>
+                <div className="stat-value stat-primary">{reports.users?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Admins</div>
+                <div className="stat-value stat-danger">{reports.users?.admin || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Supervisors</div>
+                <div className="stat-value stat-primary">{reports.users?.supervisor || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Workers</div>
+                <div className="stat-value stat-success">{reports.users?.worker || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Accountants</div>
+                <div className="stat-value stat-warning">{reports.users?.accountant || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Attendance Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Attendance Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Records</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.attendance?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Present</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.attendance?.present || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Absent</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#e74c3c' }}>
-                    {reports.attendance?.absent || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Attendance Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Records</div>
+                <div className="stat-value stat-primary">{reports.attendance?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Present</div>
+                <div className="stat-value stat-success">{reports.attendance?.present || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Absent</div>
+                <div className="stat-value stat-danger">{reports.attendance?.absent || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Payments Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Payments Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Payments</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.payments?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Pending</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
-                    {reports.payments?.pending || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Paid</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.payments?.paid || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Salary Paid</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    ₹{reports.payments?.totalSalaryPaid?.toLocaleString() || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Payments Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Payments</div>
+                <div className="stat-value stat-primary">{reports.payments?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Pending</div>
+                <div className="stat-value stat-warning">{reports.payments?.pending || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Paid</div>
+                <div className="stat-value stat-success">{reports.payments?.paid || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Total Salary Paid</div>
+                <div className="stat-value stat-success">₹{reports.payments?.totalSalaryPaid?.toLocaleString() || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Tasks Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Tasks Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Tasks</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.tasks?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Pending</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
-                    {reports.tasks?.pending || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>In Progress</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.tasks?.inProgress || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Completed</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.tasks?.completed || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Tasks Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Tasks</div>
+                <div className="stat-value stat-primary">{reports.tasks?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Pending</div>
+                <div className="stat-value stat-warning">{reports.tasks?.pending || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">In Progress</div>
+                <div className="stat-value stat-primary">{reports.tasks?.inProgress || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Completed</div>
+                <div className="stat-value stat-success">{reports.tasks?.completed || 0}</div>
               </div>
             </div>
           </div>
 
           {/* Equipment Section */}
-          <div style={sectionStyle}>
-            <h2 style={{ color: '#2c3e50', marginBottom: '1rem' }}>Equipment Overview</h2>
-            <div style={cardStyle}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Total Equipment</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.equipment?.total || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Available</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#27ae60' }}>
-                    {reports.equipment?.available || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>In Use</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
-                    {reports.equipment?.inUse || 0}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: '0 0 0.5rem 0', color: '#7f8c8d', fontSize: '0.9rem' }}>Maintenance</p>
-                  <p style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold', color: '#e67e22' }}>
-                    {reports.equipment?.maintenance || 0}
-                  </p>
-                </div>
+          <div className="report-section">
+            <h2 className="section-title">Equipment Overview</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Equipment</div>
+                <div className="stat-value stat-primary">{reports.equipment?.total || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Available</div>
+                <div className="stat-value stat-success">{reports.equipment?.available || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">In Use</div>
+                <div className="stat-value stat-primary">{reports.equipment?.inUse || 0}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Maintenance</div>
+                <div className="stat-value stat-maintenance">{reports.equipment?.maintenance || 0}</div>
               </div>
             </div>
           </div>

@@ -6,11 +6,13 @@ const { auth, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 // @route   GET /api/users
-// @desc    Get all users
-// @access  Private (Admin only)
-router.get('/', auth, authorize('admin'), async (req, res) => {
+// @desc    Get all users (Admin: all; Supervisor/Accountant: workers only for dropdowns)
+// @access  Private (Admin, Supervisor, Accountant)
+router.get('/', auth, authorize('admin', 'supervisor', 'accountant'), async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const isAdmin = req.user.role === 'admin';
+    const query = isAdmin ? {} : { role: 'worker' };
+    const users = await User.find(query).select('-password').sort({ createdAt: -1 });
 
     res.json({
       success: true,

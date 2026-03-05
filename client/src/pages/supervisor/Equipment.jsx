@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/dateFormat';
 
 const Equipment = () => {
   const [equipment, setEquipment] = useState([]);
@@ -62,83 +63,38 @@ const Equipment = () => {
   };
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>;
+    return <div className="text-center py-5">Loading...</div>;
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0, color: '#2c3e50' }}>Equipment Tracking</h1>
-        <select
-          value={selectedSite}
-          onChange={(e) => setSelectedSite(e.target.value)}
-          style={{
-            padding: '0.75rem 1rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            minWidth: '200px'
-          }}
-        >
+    <div className="app-container">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1 style={{ color: 'var(--primary)', margin: 0 }}>Equipment Tracking</h1>
+        <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} className="form-select" style={{ maxWidth: '240px' }}>
           <option value="">All Sites</option>
           {sites.map((site) => (
-            <option key={site._id} value={site._id}>
-              {site.siteName}
-            </option>
+            <option key={site._id} value={site._id}>{site.siteName}</option>
           ))}
         </select>
       </div>
 
       {equipment.length === 0 ? (
-        <div style={{
-          backgroundColor: 'white',
-          padding: '3rem',
-          borderRadius: '8px',
-          textAlign: 'center',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}>
-          <p style={{ color: '#666', fontSize: '1.1rem' }}>No equipment found</p>
+        <div className="card p-4 text-center">
+          <p className="muted-small mb-0">No equipment found</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+        <div className="row g-3">
           {equipment.map((item) => (
-            <div
-              key={item._id}
-              style={{
-                backgroundColor: 'white',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                borderLeft: `4px solid ${getStatusColor(item.status)}`
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0, color: '#2c3e50' }}>{item.equipmentName}</h3>
-                <span style={{
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '12px',
-                  fontSize: '0.85rem',
-                  backgroundColor: getStatusColor(item.status) + '20',
-                  color: getStatusColor(item.status)
-                }}>
-                  {item.status}
-                </span>
-              </div>
-              
-              <div>
-                <p style={{ margin: '0.5rem 0', color: '#666' }}>
-                  <strong>📍 Site:</strong> {item.siteID?.siteName || 'N/A'}
-                </p>
-                {item.lastMaintenance && (
-                  <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.9rem' }}>
-                    <strong>🔧 Last Maintenance:</strong> {new Date(item.lastMaintenance).toLocaleDateString()}
-                  </p>
-                )}
-                {item.createdAt && (
-                  <p style={{ margin: '0.5rem 0', color: '#666', fontSize: '0.9rem' }}>
-                    <strong>Added:</strong> {new Date(item.createdAt).toLocaleDateString()}
-                  </p>
-                )}
+            <div key={item._id} className="col-12 col-md-6 col-lg-4">
+              <div className="card p-3" style={{ borderLeft: `4px solid ${getStatusColor(item.status)}` }}>
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <h5 style={{ margin: 0, color: 'var(--primary)' }}>{item.equipmentName}</h5>
+                  <span className={`badge`} style={{ backgroundColor: getStatusColor(item.status) + '20', color: getStatusColor(item.status) }}>{item.status}</span>
+                </div>
+
+                <p className="muted-small mb-1"><strong>📍 Site:</strong> {item.siteID?.siteName || 'N/A'}</p>
+                {item.lastMaintenance && <p className="muted-small mb-1"><strong>🔧 Last Maintenance:</strong> {formatDate(item.lastMaintenance)}</p>}
+                {item.createdAt && <p className="muted-small mb-0"><strong>Added:</strong> {formatDate(item.createdAt)}</p>}
               </div>
             </div>
           ))}

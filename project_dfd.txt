@@ -1,0 +1,377 @@
+================================================================================
+  SMART CONSTRUCTION MANAGEMENT SYSTEM - DATA FLOW DIAGRAMS (DFD)
+  Mermaid code for Level 0, Level 1, and Level 1.1–1.4 (by role)
+================================================================================
+
+--------------------------------------------------------------------------------
+DFD LEVEL 0 (Context Diagram) – Entire system as single process
+--------------------------------------------------------------------------------
+Shows the system as one process with external entities and the main data store.
+All user roles interact with the system; the system reads/writes the database.
+
+--- Mermaid code (copy into Mermaid-supported editor) ---
+
+flowchart LR
+    subgraph External_Entities["External Entities"]
+        Admin(("Admin"))
+        Supervisor(("Supervisor"))
+        Worker(("Worker"))
+        Accountant(("Accountant"))
+    end
+
+    System["Smart Construction\nManagement System"]
+
+    DB[(MongoDB\nDatabase)]
+
+    Admin -->|"Login, Manage Sites/Users/Equipment, View Reports"| System
+    Supervisor -->|"Login, Mark Attendance, Assign Tasks, Manage Site Workers"| System
+    Worker -->|"Login, Mark Attendance, View Tasks, View Payments"| System
+    Accountant -->|"Login, Calculate Salary, Approve Payments, Reports"| System
+
+    System -->|"Auth, Sites, Users, Attendance, Tasks, Equipment, Payments"| DB
+    DB -->|"Stored Data"| System
+    System -->|"Dashboard, Reports, Payslips, Confirmations"| Admin
+    System -->|"Dashboard, Site Data, Confirmations"| Supervisor
+    System -->|"Dashboard, Tasks, Payment History"| Worker
+    System -->|"Dashboard, Attendance Records, Payment Data, Reports"| Accountant
+
+--- End Level 0 ---
+
+
+--------------------------------------------------------------------------------
+DFD LEVEL 1 – Entire project (major processes and data stores)
+--------------------------------------------------------------------------------
+Decomposes the system into main processes and shows data stores.
+
+--- Mermaid code ---
+
+flowchart TB
+    subgraph External["External Entities"]
+        A(("Admin"))
+        S(("Supervisor"))
+        W(("Worker"))
+        Ac(("Accountant"))
+    end
+
+    subgraph Processes["Processes"]
+        P1[1.0 Authentication\nLogin / Register]
+        P2[2.0 User Management\nCRUD Users & Roles]
+        P3[3.0 Site Management\nSites, Status, Assign Workers]
+        P4[4.0 Attendance\nMark & View Attendance]
+        P5[5.0 Task Management\nAssign & Update Tasks]
+        P6[6.0 Equipment Management\nTrack Equipment per Site]
+        P7[7.0 Payment & Salary\nCalculate, Approve, Payslips]
+        P8[8.0 Reports\nFinancial & Operational Reports]
+    end
+
+    subgraph DataStores["Data Stores"]
+        D1[(Users)]
+        D2[(Sites)]
+        D3[(Attendance)]
+        D4[(Tasks)]
+        D5[(Equipment)]
+        D6[(Payments)]
+    end
+
+    A --> P1
+    A --> P2
+    A --> P3
+    A --> P6
+    A --> P8
+    S --> P1
+    S --> P3
+    S --> P4
+    S --> P5
+    S --> P6
+    W --> P1
+    W --> P4
+    W --> P5
+    W --> P7
+    Ac --> P1
+    Ac --> P4
+    Ac --> P7
+    Ac --> P8
+
+    P1 --> D1
+    D1 --> P1
+    P2 --> D1
+    D1 --> P2
+    P3 --> D2
+    D2 --> P3
+    P4 --> D3
+    D3 --> P4
+    P4 --> D2
+    P5 --> D4
+    D4 --> P5
+    P5 --> D2
+    P6 --> D5
+    D5 --> P6
+    P6 --> D2
+    P7 --> D6
+    D6 --> P7
+    P7 --> D3
+    P7 --> D1
+    P8 --> D6
+    P8 --> D3
+    P8 --> D2
+    D6 --> P8
+    D3 --> P8
+    D2 --> P8
+
+--- End Level 1 ---
+
+
+--------------------------------------------------------------------------------
+DFD LEVEL 1.1 – Admin module
+--------------------------------------------------------------------------------
+Data flows for Admin: login, manage sites/users/equipment, view reports.
+
+--- Mermaid code ---
+
+flowchart TB
+    Admin(("Admin"))
+
+    subgraph Admin_Processes["Admin Processes"]
+        A1[Login]
+        A2[Manage Sites\nAdd/Edit/Delete/Deactivate]
+        A3[Manage Users\nWorkers, Supervisors, Accountants]
+        A4[Manage Equipment\nAdd/Edit/Delete]
+        A5[View Reports\nSites, Attendance, Payments, Equipment]
+    end
+
+    subgraph Stores["Data Stores"]
+        U[(Users)]
+        Si[(Sites)]
+        E[(Equipment)]
+        Att[(Attendance)]
+        Pay[(Payments)]
+    end
+
+    Admin -->|"Credentials"| A1
+    A1 -->|"Token, User Info"| Admin
+    A1 --> U
+
+    Admin -->|"Site Details, Status, isActive"| A2
+    A2 --> Si
+    Si -->|"Site List, Assigned Supervisor"| A2
+    A2 -->|"Confirmation"| Admin
+
+    Admin -->|"User Details, Role"| A3
+    A3 --> U
+    U -->|"User List"| A3
+    A3 -->|"Confirmation"| Admin
+
+    Admin -->|"Equipment, Site, Status"| A4
+    A4 --> E
+    A4 --> Si
+    E -->|"Equipment List"| A4
+    A4 -->|"Confirmation"| Admin
+
+    Admin -->|"Report Request"| A5
+    A5 --> Si
+    A5 --> Att
+    A5 --> Pay
+    A5 --> U
+    Si -->|"Aggregates"| A5
+    Att -->|"Aggregates"| A5
+    Pay -->|"Aggregates"| A5
+    U -->|"Counts"| A5
+    A5 -->|"Reports Data"| Admin
+
+--- End Level 1.1 ---
+
+
+--------------------------------------------------------------------------------
+DFD LEVEL 1.2 – Supervisor module
+--------------------------------------------------------------------------------
+Data flows for Supervisor: login, sites, attendance, tasks, equipment, site workers.
+
+--- Mermaid code ---
+
+flowchart TB
+    Supervisor(("Supervisor"))
+
+    subgraph Sup_Processes["Supervisor Processes"]
+        S1[Login]
+        S2[View/Update Assigned Sites\nStatus: Ongoing / Paused / Completed]
+        S3[Manage Site Workers\nAdd/Remove Workers to Site]
+        S4[Mark Attendance\nWorker, Site, Date, Status, Overtime]
+        S5[Task Management\nAssign Tasks, View, Delete]
+        S6[Equipment\nView/Add/Update by Site]
+    end
+
+    subgraph Stores["Data Stores"]
+        U[(Users)]
+        Si[(Sites)]
+        Att[(Attendance)]
+        T[(Tasks)]
+        Eq[(Equipment)]
+    end
+
+    Supervisor -->|"Credentials"| S1
+    S1 -->|"Token, User Info"| Supervisor
+    S1 --> U
+
+    Supervisor -->|"View/Status Update"| S2
+    S2 --> Si
+    Si -->|"Assigned Sites List"| S2
+    S2 -->|"Sites, Confirmation"| Supervisor
+
+    Supervisor -->|"Select Site, Add/Remove Worker"| S3
+    S3 --> Si
+    S3 --> U
+    Si -->|"Current Workers"| S3
+    U -->|"Workers List"| S3
+    S3 -->|"Confirmation"| Supervisor
+
+    Supervisor -->|"Worker, Site, Date, Status, Overtime"| S4
+    S4 --> Att
+    S4 --> Si
+    Si -->|"Site, Assigned Workers"| S4
+    Att -->|"Attendance Records"| S4
+    S4 -->|"Confirmation, Records"| Supervisor
+
+    Supervisor -->|"Assign Task: Worker, Site, Description"| S5
+    S5 --> T
+    S5 --> Si
+    T -->|"Task List"| S5
+    Si -->|"Sites, Workers"| S5
+    S5 -->|"Confirmation, Tasks"| Supervisor
+
+    Supervisor -->|"Site Filter, Add/Update Equipment"| S6
+    S6 --> Eq
+    S6 --> Si
+    Eq -->|"Equipment List"| S6
+    Si -->|"Sites"| S6
+    S6 -->|"Equipment List, Confirmation"| Supervisor
+
+--- End Level 1.2 ---
+
+
+--------------------------------------------------------------------------------
+DFD LEVEL 1.3 – Worker module
+--------------------------------------------------------------------------------
+Data flows for Worker: login, mark attendance, view/update tasks, view payments and payslips.
+
+--- Mermaid code ---
+
+flowchart TB
+    Worker(("Worker"))
+
+    subgraph Worker_Processes["Worker Processes"]
+        W1[Login]
+        W2[Mark Own Attendance\nSite, Date, Status, Overtime]
+        W3[View & Update Tasks\nAssigned Tasks, Status Update]
+        W4[View Payments & Payslips\nHistory, Payslip PDF/View]
+    end
+
+    subgraph Stores["Data Stores"]
+        U[(Users)]
+        Si[(Sites)]
+        Att[(Attendance)]
+        T[(Tasks)]
+        Pay[(Payments)]
+    end
+
+    Worker -->|"Credentials"| W1
+    W1 -->|"Token, User Info"| Worker
+    W1 --> U
+
+    Worker -->|"Site, Date, Status, Overtime"| W2
+    W2 --> Att
+    W2 --> Si
+    Si -->|"Ongoing Sites for Worker"| W2
+    Att -->|"Saved Record"| W2
+    W2 -->|"Confirmation, History"| Worker
+
+    Worker -->|"View Request, Status Update"| W3
+    W3 --> T
+    T -->|"Assigned Tasks"| W3
+    W3 -->|"Task List, Confirmation"| Worker
+
+    Worker -->|"View Payments / Payslip Request"| W4
+    W4 --> Pay
+    Pay -->|"Payment History, Payslip Data"| W4
+    W4 -->|"Payment List, Payslip"| Worker
+
+--- End Level 1.3 ---
+
+
+--------------------------------------------------------------------------------
+DFD LEVEL 1.4 – Accountant module
+--------------------------------------------------------------------------------
+Data flows for Accountant: login, view attendance, calculate salary, approve payments, reports.
+
+--- Mermaid code ---
+
+flowchart TB
+    Accountant(("Accountant"))
+
+    subgraph Acc_Processes["Accountant Processes"]
+        C1[Login]
+        C2[View Attendance Records\nFilter by Worker/Site/Date]
+        C3[Calculate Salary & Generate Payment\nWorker, Date Range, Daily Rate, Overtime]
+        C4[Approve Payments\nApprove Pending Payments]
+        C5[Generate Payslips\nView/Generate Payslip]
+        C6[Financial Reports\nPayments, Sites, Overview]
+    end
+
+    subgraph Stores["Data Stores"]
+        U[(Users)]
+        Att[(Attendance)]
+        Pay[(Payments)]
+        Si[(Sites)]
+    end
+
+    Accountant -->|"Credentials"| C1
+    C1 -->|"Token, User Info"| Accountant
+    C1 --> U
+
+    Accountant -->|"Filters: Worker, Site, Date, Status"| C2
+    C2 --> Att
+    Att -->|"Attendance Records"| C2
+    C2 -->|"Attendance Table"| Accountant
+
+    Accountant -->|"Worker, Start/End Date, Daily Rate, Overtime Rate"| C3
+    C3 --> Att
+    C3 --> Pay
+    C3 --> U
+    Att -->|"Present Days, Overtime"| C3
+    U -->|"Worker Info"| C3
+    C3 -->|"Payment Record Created, Summary"| Accountant
+
+    Accountant -->|"Approve Payment ID"| C4
+    C4 --> Pay
+    Pay -->|"Updated Status"| C4
+    C4 -->|"Confirmation"| Accountant
+
+    Accountant -->|"Payment ID / View Request"| C5
+    C5 --> Pay
+    Pay -->|"Payment, Worker, Amount, Days"| C5
+    C5 -->|"Payslip View"| Accountant
+
+    Accountant -->|"Report Request"| C6
+    C6 --> Pay
+    C6 --> Att
+    C6 --> Si
+    Pay -->|"Totals, Counts"| C6
+    Att -->|"Aggregates"| C6
+    Si -->|"Site Counts, Status"| C6
+    C6 -->|"Reports Data"| Accountant
+
+--- End Level 1.4 ---
+
+
+================================================================================
+USAGE NOTES
+================================================================================
+• Use these blocks in any Mermaid-supported tool (e.g. Mermaid Live Editor,
+  GitHub markdown, Notion, or docs that support Mermaid).
+• Copy only the content between "--- Mermaid code ---" and "--- End Level X ---"
+  for each diagram.
+• For Level 0/1, the diagrams may be large; some renderers work better with
+  flowchart TB (top-bottom) or LR (left-right). Adjust if needed.
+• Data store notation: [( )] in Mermaid = cylinder (database/store).
+• External entity: ( ) = rounded (person/actor).
+• Process: [ ] = rectangle (activity).
+================================================================================
